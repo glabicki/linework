@@ -1,0 +1,51 @@
+import { frameFor, strokesFor, strokeWidth } from "./art";
+import { paperInk, type Line } from "./lines";
+import { DOWL, MONL, dateOf, plural } from "./dates";
+
+export const SIZES: [number, number][] = [[5, 7], [8, 10], [11, 14], [18, 24]];
+export const PAPERS = { white: "#FFFFFF", warm: "#F4EFE6" } as const;
+export type Paper = keyof typeof PAPERS;
+const FONT = "'Helvetica Neue', Helvetica, Arimo, Arial, sans-serif", INK = "#2A2724", SOFT = "#6F6A64";
+
+// The file itself: the drawing, its inks and its date. No app chrome, no logo.
+export function posterSvg(o: { day: string; lines: Line[]; rides: number; size: [number, number]; paper: Paper; caption: boolean }) {
+  const [iw, ih] = o.size, W = 1000, H = Math.round((W * ih) / iw), m = 72, bg = PAPERS[o.paper];
+  const cap = o.caption ? 150 : 0;
+  const f = frameFor(o.lines), sw = strokeWidth(f.w, 300);
+  const art = strokesFor(o.day, o.lines).map(s =>
+    `<path d="${s.d}" transform="translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})" fill="none" stroke="${s.color}" stroke-width="${sw.toFixed(0)}" stroke-linecap="round" stroke-linejoin="round" style="mix-blend-mode:multiply"/>`).join("");
+  let body = `<svg x="${m}" y="${m}" width="${W - 2 * m}" height="${H - 2 * m - cap}" viewBox="${f.x.toFixed(0)} ${f.y.toFixed(0)} ${f.w.toFixed(0)} ${f.h.toFixed(0)}" preserveAspectRatio="xMidYMid meet" overflow="visible">${art}</svg>`;
+  if (o.caption) {
+    const d = dateOf(o.day), y = H - m - cap + 44;
+    const inks = [...new Set(o.lines.map(paperInk))], r = 11, step = r * 2.7;
+    const x0 = W - m - (inks.length * step - r * 0.7);
+    body += `<rect x="${m}" y="${y}" width="${W - 2 * m}" height="3.5" fill="${INK}"/>`;
+    body += `<text x="${m}" y="${y + 62}" font-family="${FONT}" font-weight="700" font-size="34" fill="${INK}">${DOWL[d.getDay()]}, ${MONL[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</text>`;
+    body += `<text x="${m}" y="${y + 100}" font-family="${FONT}" font-size="25" fill="${SOFT}">${plural(o.lines.length ? new Set(o.lines).size : 0, "line")} · ${plural(o.rides, "ride")}</text>`;
+    body += inks.map((c, i) => `<circle cx="${(x0 + r + i * step).toFixed(1)}" cy="${y + 52}" r="${r}" fill="${c}"/>`).join("");
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${bg}"/>${body}</svg>`;
+}
+
+// PNG at print resolution (150 dpi), drawn from the SVG.
+export async function posterPng(svg: string, size: [number, number]) {
+  const px = Math.round(size[0] * 150), py = Math.round(size[1] * 150);
+  const img = new Image();
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  await img.decode();
+  const c = document.createElement("canvas"); c.width = px; c.height = py;
+  c.getContext("2d")!.drawImage(img, 0, 0, px, py);
+  return new Promise<Blob>((res, rej) => c.toBlob(b => (b ? res(b) : rej(new Error("png"))), "image/png"));
+}
+
+export function printPoster(svg: string, size: [number, number]) {
+  const f = document.createElement("iframe");
+  f.setAttribute("aria-hidden", "true");
+  f.style.cssText = "position:fixed;width:0;height:0;border:0;opacity:0";
+  document.body.appendChild(f);
+  const doc = f.contentDocument!;
+  doc.open();
+  doc.write(`<!doctype html><title>Linework print</title><style>@page{size:${size[0]}in ${size[1]}in;margin:0}html,body{margin:0;height:100%}svg{display:block;width:100%;height:100%}</style>${svg}`);
+  doc.close();
+  setTimeout(() => { f.contentWindow?.focus(); f.contentWindow?.print(); setTimeout(() => f.remove(), 1500); }, 60);
+}

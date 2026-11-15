@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Linework
 
-## Getting Started
+Every ride, drawn. Log your NYC subway rides; each day becomes a print drawn from the real routes.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Add `?demo` to the URL to fill October to today with sample rides.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it's put together
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/` – Next.js App Router. One screen (`/`) plus `/privacy`.
+- `components/` – one file per screen: Today, RideSheet, Prints, DayPage, MakePrint, AddRide, Recaps, Account. `art.tsx` draws prints, cards and line marks.
+- `lib/lines.ts` – line colors, names, service notes, ride times.
+- `lib/art.ts` – the plotter line and print framing.
+- `lib/poster.ts` – the saved poster (SVG, PNG at 150 dpi, and print).
+- `lib/rides.ts` – rides and settings, kept on the phone (localStorage).
+- `lib/data/` – routes and stations built from the MTA GTFS feed. `scripts/refresh_gtfs.py` rebuilds them.
+- Colors and type come from the Figma file's variables and text styles (`app/globals.css`).
 
-## Learn More
+## Not built yet
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Accounts and backup (Supabase, email code sign-in) and syncing.
+- Onboarding, the 2026, Drawn. replay, recap notifications, share images.
+- Deploy to Vercel.
