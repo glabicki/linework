@@ -304,3 +304,5 @@ button.card:active { transform: scale(0.985); opacity: 0.9; }
 .today .recap-card { border-top: 0; padding-top: 6px; }
 .credit { font-size: 12px; line-height: 16px; color: #8a847b; padding: 8px var(--gutter) 40px; }
 .desk-note .credit { padding: 12px 0 0; font-size: 12px; line-height: 16px; color: #8a847b; }
+/* small year prints: keep routes about 1.5px wide whatever the cell size (matches Figma) */
+.year-grid.small path { vector-effect: non-scaling-stroke; stroke-width: 1.5px; }

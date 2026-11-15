@@ -27,12 +27,12 @@ export default function YearSoFar({ rides, today, year: asked, nav, toast }: { r
       <button type="button" className="year-close" onClick={nav.pop} aria-label="Close">×</button>
       <p className="kicker">{done ? `${y}, Drawn.` : `${y} so far`}</p>
       <h1>{plural(byDay.size, "print")}</h1>
-      <div className="year-grid" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="img" aria-label={`${plural(byDay.size, "day")} with rides out of ${plural(cells, "day")}`}>
+      <div className={`year-grid${cols >= 8 ? " small" : ""}`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="img" aria-label={`${plural(byDay.size, "day")} with rides out of ${plural(cells, "day")}`}>
         {[...Array(cells)].map((_, i) => {
           const k = addDays(start, i);
           const list = byDay.get(k);
           return list
-            ? <span key={k} className="on"><DayPrint day={k} lines={list.map(r => r.line)} base={cols > 10 ? 600 : 300} /></span>
+            ? <span key={k} className="on"><DayPrint day={k} lines={list.map(r => r.line)} base={300} /></span>
             : <span key={k} />;
         })}
       </div>
