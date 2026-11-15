@@ -6,13 +6,13 @@ import { dayShort, plural } from "@/lib/dates";
 import type { Ride } from "@/lib/rides";
 
 // The drawing for one day: routes in paper inks on white. No chrome, no mark.
-export const DayPrint = memo(function DayPrint({ day, lines, base = 300 }: { day: string; lines: Line[]; base?: number }) {
+export const DayPrint = memo(function DayPrint({ day, lines, base = 300, fresh }: { day: string; lines: Line[]; base?: number; fresh?: Line }) {
   const f = frameFor(lines);
   const sw = strokeWidth(f.w, base);
   return (
     <svg className="print-art" viewBox={`${f.x.toFixed(0)} ${f.y.toFixed(0)} ${f.w.toFixed(0)} ${f.h.toFixed(0)}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      {strokesFor(day, lines).map((s, i) => (
-        <path key={i} d={s.d} transform={`translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})`} fill="none" stroke={s.color}
+      {strokesFor(day, lines).map(s => (
+        <path key={s.line} d={s.d} className={s.line === fresh ? "draw" : undefined} pathLength={s.line === fresh ? 1 : undefined} transform={`translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})`} fill="none" stroke={s.color}
           strokeWidth={sw.toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={{ mixBlendMode: "multiply" }} />
       ))}
     </svg>
@@ -26,12 +26,14 @@ export function InkDots({ lines }: { lines: Line[] }) {
 }
 
 // White card: the print plus its date and ride count.
-export function DayCard({ day, rides, size = "large", onClick, stamp }: { day: string; rides: Ride[]; size?: "large" | "plain"; onClick?: () => void; stamp?: string }) {
+export function DayCard({ day, rides, size = "large", onClick }: { day: string; rides: Ride[]; size?: "large" | "plain"; onClick?: () => void }) {
   const lines = rides.map(r => r.line);
+  // A line ridden for the first time today, logged seconds ago, gets drawn in.
+  const last = rides.reduce<Ride | undefined>((a, r) => (!a || r.at > a.at ? r : a), undefined);
+  const fresh = last && Date.now() - last.at < 4000 && lines.filter(l => l === last.line).length === 1 ? last.line : undefined;
   const body = (
     <>
-      {stamp && <span className="stamp">{stamp}</span>}
-      <DayPrint day={day} lines={lines} />
+      <DayPrint day={day} lines={lines} fresh={fresh} />
       {size === "large" && (
         <span className="cap">
           <b>{dayShort(day)}</b>

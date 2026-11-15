@@ -17,7 +17,7 @@ function useInBrowser() {
 }
 
 // Figma 74:953 Today · Poster, 89:1403 First day
-export default function Today({ rides, day, mine, nav, onLog }: { rides: Ride[]; day: string; mine: Line[]; nav: Nav; onLog: (l: Line) => void }) {
+export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: Ride[]; day: string; mine: Line[]; nav: Nav; onLog: (l: Line) => void; recap?: React.ReactNode }) {
   const list = ridesOn(rides, day);
   const d = dateOf(day);
   const counts: Record<string, number> = {};
@@ -45,9 +45,11 @@ export default function Today({ rides, day, mine, nav, onLog }: { rides: Ride[];
         <button type="button" className="me" onClick={() => nav.push({ kind: "account" })} aria-label="Account"><span>LW</span></button>
       </header>
 
+      {recap}
+
       {inBrowser && (
         <div className="a2hs-note">
-          <button type="button" onClick={() => nav.push({ kind: "home" })}>In Safari, rides save but reminders can’t reach you. <b>Add to Home Screen</b></button>
+          <button type="button" onClick={() => nav.push({ kind: "home" })}>Safari can clear your rides if you don’t visit for a week. <b>Add to Home Screen</b></button>
         </div>
       )}
 
@@ -84,7 +86,7 @@ export default function Today({ rides, day, mine, nav, onLog }: { rides: Ride[];
             ? list.map(r => (
                 <button key={r.id} type="button" className="fine-ride" onClick={() => nav.push({ kind: "ride", day, rideId: r.id })}>
                   {r.time && <b>{to12(r.time)} </b>}
-                  {label(r.line)}{r.from && r.to ? `, ${stationName(r.from)} to ${stationName(r.to)}.` : `, ${r.est ? "about " : ""}${r.min} min.`}
+                  {r.time ? label(r.line) : <b>{label(r.line)}</b>}{r.from && r.to ? `, ${stationName(r.from)} to ${stationName(r.to)}.` : `, ${r.est ? "about " : ""}${r.min} min.`}
                 </button>
               ))
             : !rides.length && mine.length

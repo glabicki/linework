@@ -15,7 +15,6 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
   const d = dateOf(day);
   const est = list.some(r => r.est);
   const isToday = day === today;
-  const no = new Set(rides.filter(r => r.day <= day).map(r => r.day)).size;
 
   // Figma 192:4442: for a few seconds after a ride is logged, the plotter is still drawing it.
   const newest = list.reduce<Ride | undefined>((a, r) => (!a || r.at > a.at ? r : a), undefined);
@@ -42,7 +41,7 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
         <p>{ready ? `Your ${DOWL[d.getDay()]} is ready. ${summary}` : `${DOWL[d.getDay()]}${isToday ? " · today" : ""} · ${list.length ? summary : "no rides yet"}`}</p>
       </div>
       <div className="page-body">
-        <div className="day-card"><DayCard day={day} rides={list} stamp={list.length && !drawing ? `NO. ${no}` : undefined} /></div>
+        <div className="day-card"><DayCard day={day} rides={list} /></div>
         <i className="hr" />
         {list.map(r => (
           <div key={r.id} className="ride-row">
@@ -59,9 +58,9 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
         {!list.length && <p className="page-note">{isToday ? "Nothing yet. Tap a line you rode and the plotter draws it." : "Nothing logged this day. Forgot? Add the lines you rode; no time needed."}</p>}
       </div>
       <footer className="sheet-foot">
-        {list.length > 0 && <p className="hint">{drawing && newest ? `Still drawing the ${label(newest.line)}. It lands in a moment.` : "Tap a ride to add a time or stations. × takes it off the print, and Undo puts it back."}</p>}
-        {list.length > 0 && !isToday && <button type="button" className="action" onClick={() => nav.push({ kind: "make", day })}>Make a print</button>}
-        <button type="button" className={`action${isToday ? " bare" : ""}`} onClick={() => nav.push({ kind: "add", day })}>Add a ride</button>
+        {drawing && newest && <p className="hint">Still drawing the {label(newest.line)}. It lands in a moment.</p>}
+        {list.length > 0 && <button type="button" className="action" onClick={() => nav.push({ kind: "make", day })}>Make a print</button>}
+        <button type="button" className={`action${isToday && !list.length ? " bare" : ""}`} onClick={() => nav.push({ kind: "add", day })}>Add a ride</button>
       </footer>
     </div>
   );

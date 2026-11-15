@@ -37,15 +37,3 @@ export async function posterPng(svg: string, size: [number, number]) {
   c.getContext("2d")!.drawImage(img, 0, 0, px, py);
   return new Promise<Blob>((res, rej) => c.toBlob(b => (b ? res(b) : rej(new Error("png"))), "image/png"));
 }
-
-export function printPoster(svg: string, size: [number, number]) {
-  const f = document.createElement("iframe");
-  f.setAttribute("aria-hidden", "true");
-  f.style.cssText = "position:fixed;width:0;height:0;border:0;opacity:0";
-  document.body.appendChild(f);
-  const doc = f.contentDocument!;
-  doc.open();
-  doc.write(`<!doctype html><title>Linework print</title><style>@page{size:${size[0]}in ${size[1]}in;margin:0}html,body{margin:0;height:100%}svg{display:block;width:100%;height:100%}</style>${svg}`);
-  doc.close();
-  setTimeout(() => { f.contentWindow?.focus(); f.contentWindow?.print(); setTimeout(() => f.remove(), 1500); }, 60);
-}

@@ -39,10 +39,9 @@ export default function Onboarding({ settings }: { settings: Settings }) {
         </div>
         <div className="page-copy">
           <h1 className="t-large">Every ride, drawn.</h1>
-          <p>Tap the subway lines you take. Each day becomes its own small print, and every week you see how long you spent underground.</p>
+          <p>Tap the NYC subway lines you take. Each day becomes its own small print, and every week you see how long you spent underground. It’s free, with no account needed.</p>
         </div>
         <footer className="sheet-foot ob-foot">
-          <p className="hint soft">Free. NYC subway only. No account needed.</p>
           <button type="button" className="btn" onClick={() => setStep(1)}>Get started</button>
         </footer>
       </div>
@@ -84,18 +83,19 @@ export default function Onboarding({ settings }: { settings: Settings }) {
       <Nav step={2} onBack={() => setStep(1)} onSkip={() => finish()} />
       <div className="page-copy">
         <h1 className="t-large">How long were you underground?</h1>
-        <p>Linework adds up your rides and sends a short recap. Pick how often.</p>
+        <p>Linework adds up your rides into a short recap. It waits for you at the top of Today. Pick how often.</p>
       </div>
       <div className="ob-preview" aria-hidden="true">
-        <div className="banner">
-          <span className="app-icon"><i /></span>
-          <span className="txt"><span className="row1"><b>This week: 6 h 40 min underground</b><span>now</span></span><span>Your week of prints is ready: 18 rides on 4 lines.</span></span>
+        <div className="recap-card">
+          <div className="rc-top"><p className="kicker">Weekly recap</p></div>
+          <h2>6 h 40 min underground</h2>
+          <p className="rc-body">Nov 9 – 15 · 18 rides on 4 lines</p>
         </div>
       </div>
       <div className="ob-opts">
         {opt("weekly", "Weekly", "Sundays at 7 pm")}
         {opt("monthly", "Monthly", "The 1st, at 9 am")}
-        {opt("yearly", "Yearly", "December 31")}
+        {opt("yearly", "Yearly", "January 1")}
       </div>
       <footer className="sheet-foot">
         <button type="button" className="btn" onClick={() => finish({ recaps })}>Turn on recaps</button>

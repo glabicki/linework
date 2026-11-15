@@ -11,6 +11,8 @@ import Account from "./Account";
 import Onboarding from "./Onboarding";
 import YearSoFar from "./YearSoFar";
 import HomeScreen from "./HomeScreen";
+import RecapCard from "./RecapCard";
+import { dueCards } from "@/lib/recaps";
 import { addRide, removeRide, restoreRide, seedDemo, useStore, type Ride } from "@/lib/rides";
 import { label, type Line } from "@/lib/lines";
 import { todayKey } from "@/lib/dates";
@@ -22,7 +24,7 @@ type Page =
   | { kind: "make"; day: string }
   | { kind: "add"; day: string }
   | { kind: "account" }
-  | { kind: "year" }
+  | { kind: "year"; year?: number }
   | { kind: "home" };
 export type Nav = { push: (p: Page) => void; pop: () => void; replace: (p: Page) => void; tab: (t: Tab) => void };
 
@@ -60,8 +62,10 @@ export default function App() {
   };
 
   const onLog = (l: Line) => {
+    const first = !rides.length;
     const r = addRide(today, l);
-    toast(`Logged the ${label(l)}`, () => removeRide(r.id));
+    // The first ride also teaches press and hold.
+    toast(first ? `Logged the ${label(l)}. Press and hold a line to add a time.` : `Logged the ${label(l)}`, () => removeRide(r.id));
   };
   const onRemoved = (r: Ride) => toast(`Removed the ${label(r.line)}`, () => restoreRide(r));
 
@@ -71,12 +75,15 @@ export default function App() {
   else if (page?.kind === "day") view = <DayPage day={page.day} today={today} rides={rides} nav={nav} onRemoved={onRemoved} />;
   else if (page?.kind === "make") view = <MakePrint day={page.day} rides={rides} nav={nav} toast={toast} />;
   else if (page?.kind === "add") view = <AddRide day={page.day} rides={rides} nav={nav} />;
-  else if (page?.kind === "year") view = <YearSoFar rides={rides} today={today} nav={nav} toast={toast} />;
+  else if (page?.kind === "year") view = <YearSoFar rides={rides} today={today} year={page.year} nav={nav} toast={toast} />;
   else if (page?.kind === "home") view = <HomeScreen nav={nav} />;
   else if (page?.kind === "account") view = <Account rides={rides} settings={settings} nav={nav} toast={toast} />;
   else if (tab === "prints") view = <Prints rides={rides} today={today} nav={nav} toast={toast} />;
   else if (tab === "recaps") view = <Recaps rides={rides} today={today} nav={nav} />;
-  else view = <Today rides={rides} day={today} mine={settings.lines} nav={nav} onLog={onLog} />;
+  else {
+    const card = dueCards(new Date(), rides, settings)[0];
+    view = <Today rides={rides} day={today} mine={settings.lines} nav={nav} onLog={onLog} recap={card && <RecapCard card={card} rides={rides} nav={nav} toast={toast} />} />;
+  }
 
   if (!mounted) return <div className="app" />;
   if (!settings.onboarded && !rides.length) return <div className="app"><main className="view"><Onboarding settings={settings} /></main></div>;

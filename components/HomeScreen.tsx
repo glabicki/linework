@@ -15,7 +15,7 @@ export default function HomeScreen({ nav }: { nav: Nav }) {
       <Back onClick={nav.pop} />
       <div className="page-copy">
         <h1 className="t-large">Put Linework on your Home Screen.</h1>
-        <p>It opens like an app, works on the train with no signal, and can remind you when a recap arrives.</p>
+        <p>It opens like an app, works on the train with no signal, and keeps your rides from being cleared when you’re away.</p>
       </div>
       <div className="sheet-rows">
         <i className="hr" />

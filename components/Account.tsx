@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { label } from "@/lib/lines";
-import { eraseAll, linesOf, setSettings, toCSV, type Ride, type Settings } from "@/lib/rides";
-import { plural } from "@/lib/dates";
+import { backupJSON, eraseAll, linesOf, markBackedUp, restoreBackup, setSettings, toCSV, type Ride, type Settings } from "@/lib/rides";
+import { monthDay, plural, todayKey } from "@/lib/dates";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
 
@@ -16,13 +16,29 @@ export default function Account({ rides, settings, nav, toast }: { rides: Ride[]
   const r = settings.recaps;
   const setR = (k: keyof Settings["recaps"], v: boolean) => setSettings({ recaps: { ...r, [k]: v } });
 
-  const exportRides = async () => {
-    const file = new File([toCSV(rides)], "linework-rides.csv", { type: "text/csv" });
+  // Share sheet on a phone (Save to Files), a download elsewhere. False if closed.
+  const send = async (file: File) => {
     try {
-      if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+      if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file] }); return true; }
       const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = file.name; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    } catch { /* closed the share sheet */ }
+      return true;
+    } catch { return false; }
+  };
+  const exportRides = () => send(new File([toCSV(rides)], "linework-rides.csv", { type: "text/csv" }));
+  const saveBackup = async () => {
+    const day = todayKey();
+    if (await send(new File([backupJSON({ rides, settings })], `linework-backup-${day}.json`, { type: "application/json" }))) {
+      markBackedUp(day);
+      toast("Backup saved");
+    }
+  };
+  const restore = async (f?: File) => {
+    if (!f) return;
+    try {
+      const n = restoreBackup(await f.text());
+      toast(n ? `Brought back ${plural(n, "ride")}` : "Everything in that backup is already here");
+    } catch { toast("That file isn’t a Linework backup."); }
   };
 
   // Figma 192:4215 Erase this phone
@@ -53,8 +69,11 @@ export default function Account({ rides, settings, nav, toast }: { rides: Ride[]
       <div className="sheet-copy"><h1 className="t-page" style={{ color: "var(--ui-text)" }}>Account</h1></div>
       <div className="sheet-rows account">
         <p className="kicker">Backup</p><i className="hr" />
-        <Row title="Keep your prints safe" sub="Only on this phone right now. Make a free account to back it up.">
-          <button type="button" className="val" onClick={() => toast("Accounts are coming soon.")}>Set up</button>
+        <Row title="Save a backup" sub={settings.backedUp ? `Last saved ${monthDay(settings.backedUp)}. Your rides live only on this phone.` : "Your rides live only on this phone. Save a copy to Files now and then."}>
+          <button type="button" className="val" onClick={saveBackup}>Save</button>
+        </Row>
+        <Row title="Restore a backup" sub="Bring rides back from a saved file">
+          <label className="val file">Restore<input type="file" accept="application/json,.json" onChange={e => { restore(e.target.files?.[0]); e.target.value = ""; }} /></label>
         </Row>
         <p className="kicker">Today’s lines</p><i className="hr" />
         <Row title={lines.length ? lines.map(label).join(", ").replace(/, ([^,]*)$/, " and $1") : "None yet"} sub="Shown first in the grid" />

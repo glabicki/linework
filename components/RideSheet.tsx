@@ -51,7 +51,7 @@ export default function RideSheet({ day, rides, ride, line, nav, onRemoved }: { 
     <div className="sheet">
       <Back onClick={nav.pop} />
       <div className="sheet-copy">
-        <div className="sheet-mark"><LineMark line={l} lit size={56} /><span>{label(l)}</span></div>
+        <div className="sheet-mark"><LineMark line={l} lit size={56} /></div>
         <h1 className="t-page" style={{ color: "var(--ui-text)" }}>{LineTitle(l)}</h1>
         <p className="t-body muted">{isNew ? "New ride · " : ""}{dayLong(day)}</p>
       </div>

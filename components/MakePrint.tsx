@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { PAPERS, SIZES, posterPng, posterSvg, printPoster, type Paper } from "@/lib/poster";
+import { PAPERS, SIZES, posterPng, posterSvg, type Paper } from "@/lib/poster";
 import { dayLong, keyOf, dateOf } from "@/lib/dates";
 import { ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
@@ -23,7 +23,7 @@ export default function MakePrint({ day, rides, nav, toast }: { day: string; rid
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       toast("Saved");
     } catch (e) {
-      if ((e as Error).name !== "AbortError") toast("Couldn’t save. Try Print instead.");
+      if ((e as Error).name !== "AbortError") toast("Couldn’t save. Try again.");
     }
   };
 
@@ -47,9 +47,8 @@ export default function MakePrint({ day, rides, nav, toast }: { day: string; rid
         </div>
       </div>
       <footer className="sheet-foot">
-        <p className="hint">Save it, then print it yourself: at home, at a print shop, or with any online print service. {size[0]} × {size[1]} in.</p>
+        <p className="hint">Save it to your photos, then print it at home or at any print shop. {size[0]} × {size[1]} in.</p>
         <button type="button" className="btn" onClick={savePoster}>Save poster</button>
-        <button type="button" className="action tall" onClick={() => printPoster(svg, size)}>Print</button>
       </footer>
     </div>
   );

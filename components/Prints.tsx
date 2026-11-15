@@ -60,7 +60,7 @@ export default function Prints({ rides, today, nav, toast }: { rides: Ride[]; to
           const list = ridesOn(rides, k);
           return (
             <div key={k} className="wday">
-              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : <span className={`blank${k > today ? " later" : ""}`} />}
+              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : k > today ? <span className="blank later" /> : <button type="button" className="blank" aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
               <div className="wlab"><b>{dayShort(k)}</b><span>{k > today ? "" : list.length ? plural(list.length, "ride") : "Off"}</span></div>
             </div>
           );
@@ -84,7 +84,7 @@ export default function Prints({ rides, today, nav, toast }: { rides: Ride[]; to
           const list = ridesOn(rides, k);
           return (
             <div key={k} className="mday">
-              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : <span className={`blank${k > today ? " later" : ""}`} />}
+              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : k > today ? <span className="blank later" /> : <button type="button" className="blank" aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
               <span>{dateOf(k).getDate()}</span>
             </div>
           );
