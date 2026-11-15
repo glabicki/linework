@@ -1,22 +1,29 @@
 "use client";
 import { useState } from "react";
 import { DayCard } from "./art";
-import { MON, MONL, addDays, dateOf, keyOf, weekStart } from "@/lib/dates";
+import { Icon } from "./icons";
+import { MON, MONL, addDays, dateOf, dayShort, keyOf, plural, weekStart } from "@/lib/dates";
 import { linesOf, minutes, ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
+import { shareWeek } from "@/lib/share";
+
+export function TabHead({ title, children }: { title: string; children?: React.ReactNode }) {
+  return <header className="tab-head"><h1 className="t-page">{title}</h1>{children}</header>;
+}
 
 function Stats({ list }: { list: Ride[] }) {
   const m = minutes(list);
   return (
     <div className="stats">
-      <div><b className="t-stat">{list.length}</b><span className="t-caption muted">rides</span></div>
-      <div><b className="t-stat">{m < 60 ? `${m} min` : `${Math.round(m / 60)} h`}</b><span className="t-caption muted">underground</span></div>
-      <div><b className="t-stat">{linesOf(list).length}</b><span className="t-caption muted">lines</span></div>
+      <div><b>{list.length}</b><span>rides</span></div>
+      <div><b>{m < 60 ? `${m} min` : `${Math.round(m / 60)} h`}</b><span>underground</span></div>
+      <div><b>{linesOf(list).length}</b><span>lines</span></div>
     </div>
   );
 }
 
-export default function Prints({ rides, today, nav }: { rides: Ride[]; today: string; nav: Nav }) {
+// Figma 30:206 Week, 32:236 Month, 175:3681 No prints yet
+export default function Prints({ rides, today, nav, toast }: { rides: Ride[]; today: string; nav: Nav; toast: (m: string) => void }) {
   const [view, setView] = useState<"week" | "month">("week");
   const [wk, setWk] = useState(weekStart(today));
   const t = dateOf(today);
@@ -26,13 +33,13 @@ export default function Prints({ rides, today, nav }: { rides: Ride[]; today: st
 
   if (!rides.length) {
     return (
-      <div className="screen">
-        <header className="tab-head"><h1 className="t-page">Prints</h1></header>
+      <div className="tab">
+        <TabHead title="Prints" />
         <div className="empty">
           <div className="empty-card" />
-          <h2 className="t-title">No prints yet.</h2>
-          <p className="t-caption muted">Every day you ride becomes a print. Log a ride and today’s starts drawing.</p>
-          <button type="button" className="btn" onClick={() => nav.tab("today")}>Log a ride</button>
+          <h2>No prints yet.</h2>
+          <p>Every day you ride becomes a print. Log a ride and today’s starts drawing.</p>
+          <button type="button" className="btn btn-sm" onClick={() => nav.tab("today")}>Log a ride</button>
         </div>
       </div>
     );
@@ -51,9 +58,12 @@ export default function Prints({ rides, today, nav }: { rides: Ride[]; today: st
       <div className="week">
         {keys.map(k => {
           const list = ridesOn(rides, k);
-          if (k > today) return <div key={k} className="cell-off"><span className="t-tab muted">{dateOf(k).getDate()}</span><span className="t-tab muted">To come</span></div>;
-          if (!list.length) return <div key={k} className="cell-off"><span className="t-tab muted">{dateOf(k).getDate()}</span><span className="t-tab muted">Off</span></div>;
-          return <DayCard key={k} day={k} rides={list} size="small" onClick={() => open(k)} />;
+          return (
+            <div key={k} className="wday">
+              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : <span className={`blank${k > today ? " later" : ""}`} />}
+              <div className="wlab"><b>{dayShort(k)}</b><span>{k > today ? "" : list.length ? plural(list.length, "ride") : "Off"}</span></div>
+            </div>
+          );
         })}
       </div>
     );
@@ -68,14 +78,14 @@ export default function Prints({ rides, today, nav }: { rides: Ride[]; today: st
     step = n => setMo(({ y, m }) => { const d = new Date(y, m + n, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
     body = (
       <div className="month">
-        {["M", "T", "W", "T", "F", "S", "S"].map((w, i) => <span key={i} className="t-tab muted wd">{w}</span>)}
+        {["M", "T", "W", "T", "F", "S", "S"].map((w, i) => <span key={i} className="wd">{w}</span>)}
         {[...Array(lead)].map((_, i) => <span key={"l" + i} />)}
         {keys.map(k => {
           const list = ridesOn(rides, k);
           return (
             <div key={k} className="mday">
-              {list.length ? <DayCard day={k} rides={list} size="tiny" onClick={() => open(k)} /> : <span className={`mblank${k > today ? " later" : ""}`} />}
-              <span className="t-tab muted">{dateOf(k).getDate()}</span>
+              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : <span className={`blank${k > today ? " later" : ""}`} />}
+              <span>{dateOf(k).getDate()}</span>
             </div>
           );
         })}
@@ -84,20 +94,28 @@ export default function Prints({ rides, today, nav }: { rides: Ride[]; today: st
   }
 
   return (
-    <div className="screen">
-      <header className="tab-head"><h1 className="t-page">Prints</h1></header>
-      <div className="seg" role="tablist">
-        <button type="button" role="tab" aria-selected={view === "week"} onClick={() => setView("week")}>Week</button>
-        <button type="button" role="tab" aria-selected={view === "month"} onClick={() => setView("month")}>Month</button>
+    <div className="tab">
+      <TabHead title="Prints">
+        {view === "week" && (
+          <button type="button" className="share" aria-label="Share this week as an image" onClick={async () => {
+            try { if ((await shareWeek(wk, rides)) === "saved") toast("Saved the week as an image"); }
+            catch (e) { if ((e as Error).name !== "AbortError") toast("Couldn’t make the image. Try again."); }
+          }}><Icon name="share" /></button>
+        )}
+      </TabHead>
+      <div className="prints-body">
+        <div className="seg" role="tablist">
+          <button type="button" role="tab" aria-selected={view === "week"} onClick={() => setView("week")}>Week</button>
+          <button type="button" role="tab" aria-selected={view === "month"} onClick={() => setView("month")}>Month</button>
+        </div>
+        <div className="range">
+          <button type="button" onClick={() => step(-1)} disabled={!prevOk} aria-label={`Previous ${view}`}><Icon name="left" /></button>
+          <div><b>{range}</b>{sub && <span>{sub}</span>}</div>
+          <button type="button" onClick={() => step(1)} disabled={!nextOk} aria-label={`Next ${view}`}><Icon name="right" /></button>
+        </div>
+        <Stats list={inRange} />
+        {body}
       </div>
-      <div className="range">
-        <button type="button" onClick={() => step(-1)} disabled={!prevOk} aria-label={`Previous ${view}`}>‹</button>
-        <div><b className="t-title">{range}</b>{sub && <span className="t-caption muted">{sub}</span>}</div>
-        <button type="button" onClick={() => step(1)} disabled={!nextOk} aria-label={`Next ${view}`}>›</button>
-      </div>
-      <div className="rule" />
-      <Stats list={inRange} />
-      {body}
     </div>
   );
 }

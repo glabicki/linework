@@ -99,7 +99,7 @@ export function seedDemo() {
   const t = todayKey();
   const extra = ["G", "6", "Q", "7", "F", "1", "N", "J", "M", "C"];
   const rides: Ride[] = [];
-  for (let k = "2026-10-01"; k <= t; k = addDays(k, 1)) {
+  for (let k = "2026-10-01"; k < t; k = addDays(k, 1)) {
     const r = rng(hash("demo" + k));
     if (r() < 0.14) continue; // a day off the train
     const mix: Line[] = r() < 0.8 ? ["L", "A"] : [];
@@ -107,5 +107,8 @@ export function seedDemo() {
     if (!mix.includes("L") && r() < 0.4) mix.push(extra[Math.floor(r() * extra.length)]);
     [...new Set(mix)].forEach((line, i) => rides.push({ id: uid(), day: k, line, ...timing(line), at: Date.parse(k) + i * 3.6e6 }));
   }
+  // today matches the Figma Today screen
+  ([["L", "Bedford Av", "8 Av", "08:41"], ["A", "14 St", "Jay St-MetroTech", "12:10"], ["A", "Jay St-MetroTech", "14 St", "18:15"]] as [Line, string, string, string][])
+    .forEach(([line, from, to, time], i) => rides.push({ id: uid(), day: t, line, from, to, time, ...timing(line, from, to), at: Date.parse(t) + i * 3.6e6 }));
   save({ rides, settings: { ...state.settings, lines: ["L", "A", "G"], onboarded: true } });
 }

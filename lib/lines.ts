@@ -39,16 +39,21 @@ export const label = (l: Line) => LABEL[l] ?? l;
 export const lineName = (l: Line) => NAME[l] ?? `the ${l}`;
 export const LineTitle = (l: Line) => NAME[l] ?? `The ${l}`;
 
-const WEEKDAY_ONLY: Record<Line, string> = { W: "The W runs weekdays only.", B: "The B runs weekdays only.", Z: "The Z runs weekday rush hours only." };
-const SERVICE: Record<Line, string> = {
-  GS: "The 42 St Shuttle doesn’t run late nights.",
-  C: "The C doesn’t run late nights; the A runs local.",
-  "5": "Late nights the 5 runs only in the Bronx.",
+const WEEKDAY_ONLY: Record<Line, [string, string]> = {
+  W: ["Weekdays only", "The W runs weekdays only."],
+  B: ["Weekdays only", "The B runs weekdays only."],
+  Z: ["Weekday rush hours only", "The Z runs weekday rush hours only."],
+};
+const SERVICE: Record<Line, [string, string]> = {
+  GS: ["No late nights", "The 42 St Shuttle doesn’t run late nights."],
+  C: ["No late nights", "The C doesn’t run late nights; the A runs local."],
+  "5": ["Late nights", "Late nights the 5 runs only in the Bronx."],
   ...WEEKDAY_ONLY,
 };
-export function serviceNote(l: Line, weekend: boolean, dayLong: string) {
-  if (weekend && WEEKDAY_ONLY[l]) return `${WEEKDAY_ONLY[l]} ${dayLong} was a weekend, but if your train said ${label(l)}, log it anyway.`;
-  return SERVICE[l] ?? "";
+export function serviceNote(l: Line, weekend: boolean): { title: string; body: string } | null {
+  if (weekend && WEEKDAY_ONLY[l]) return { title: WEEKDAY_ONLY[l][0], body: `${WEEKDAY_ONLY[l][1]} If your train said ${label(l)}, log it anyway.` };
+  const n = SERVICE[l];
+  return n ? { title: n[0], body: n[1] } : null;
 }
 
 // Minutes: scheduled time between two stations, or a typical ride when stations aren't set.
@@ -60,3 +65,6 @@ export function scheduledMin(l: Line, from?: string, to?: string) {
   if (i < 0 || j < 0 || i === j) return null;
   return Math.max(2, Math.round(Math.abs(s[j][1] - s[i][1])));
 }
+
+// Station names read with en dashes, as on MTA signs ("Jay St–MetroTech").
+export const stationName = (s?: string) => (s ?? "").replace(/-/g, "–");

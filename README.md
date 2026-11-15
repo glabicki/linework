@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Add `?demo` to the URL to fill October to today with sample rides.
+Open http://localhost:3000. Add `?demo` to the URL to fill October to today with sample rides. Open http://localhost:3000/phone to see it in an iPhone-sized frame.
 
 ## How it's put together
 
@@ -25,5 +25,5 @@ Open http://localhost:3000. Add `?demo` to the URL to fill October to today with
 ## Not built yet
 
 - Accounts and backup (Supabase, email code sign-in) and syncing.
-- Onboarding, the 2026, Drawn. replay, recap notifications, share images.
+- The intro animation, the 2026, Drawn. replay itself (the year-so-far page is built), the Share today screen, recap notifications.
 - Deploy to Vercel.

@@ -4,6 +4,7 @@ import { label } from "@/lib/lines";
 import { eraseAll, linesOf, setSettings, toCSV, type Ride, type Settings } from "@/lib/rides";
 import { plural } from "@/lib/dates";
 import type { Nav } from "./App";
+import { Back } from "./RideSheet";
 
 function Toggle({ on, onChange, label: l }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
   return <button type="button" role="switch" aria-checked={on} aria-label={l} className={`toggle${on ? " on" : ""}`} onClick={() => onChange(!on)} />;
@@ -24,43 +25,48 @@ export default function Account({ rides, settings, nav, toast }: { rides: Ride[]
     } catch { /* closed the share sheet */ }
   };
 
+  // Figma 192:4215 Erase this phone
   if (erase) {
     return (
-      <div className="screen page">
-        <button type="button" className="back" onClick={() => setErase(false)} aria-label="Back">‹</button>
-        <h1 className="t-title">Erase this phone?</h1>
-        <p className="t-caption muted">Removes your rides and prints from this iPhone. {plural(rides.length, "ride")} will be gone.</p>
-        <footer className="foot">
+      <div className="sheet">
+        <Back onClick={() => setErase(false)} />
+        <div className="page-copy">
+          <h1 className="t-large">Erase this phone?</h1>
+          <p>Removes your rides and prints from this iPhone. {plural(rides.length, "ride")} will be gone.</p>
+        </div>
+        <footer className="sheet-foot" style={{ paddingBottom: 34 }}>
           <button type="button" className="btn" onClick={() => { eraseAll(); setErase(false); nav.pop(); toast("Erased"); }}>Erase this phone</button>
-          <button type="button" className="link" onClick={() => setErase(false)}>Cancel</button>
+          <button type="button" className="btn-line" onClick={() => setErase(false)}>Cancel</button>
         </footer>
       </div>
     );
   }
 
+  const Row = ({ title, sub, children }: { title: string; sub: string; children?: React.ReactNode }) => (
+    <div className="frow"><span className="txt"><b>{title}</b><span>{sub}</span></span>{children}</div>
+  );
+
+  // Figma 115:1414 Account · Signed out
   return (
-    <div className="screen page">
-      <button type="button" className="back" onClick={nav.pop} aria-label="Back">‹</button>
-      <h1 className="t-page">Account</h1>
-
-      <p className="t-label muted section">Backup</p>
-      <div className="row">
-        <span className="txt"><b className="t-headline">Keep your prints safe</b><span className="t-caption muted">Only on this phone right now. Make a free account to back it up.</span></span>
-        <button type="button" className="row-act" onClick={() => toast("Accounts are coming soon.")}>Set up</button>
+    <div className="sheet">
+      <Back onClick={nav.pop} />
+      <div className="sheet-copy"><h1 className="t-page" style={{ color: "var(--ui-text)" }}>Account</h1></div>
+      <div className="sheet-rows account">
+        <p className="kicker">Backup</p><i className="hr" />
+        <Row title="Keep your prints safe" sub="Only on this phone right now. Make a free account to back it up.">
+          <button type="button" className="val" onClick={() => toast("Accounts are coming soon.")}>Set up</button>
+        </Row>
+        <p className="kicker">Today’s lines</p><i className="hr" />
+        <Row title={lines.length ? lines.map(label).join(", ").replace(/, ([^,]*)$/, " and $1") : "None yet"} sub="Shown first in the grid" />
+        <p className="kicker">Recaps</p><i className="hr" />
+        <Row title="Weekly" sub="Sundays at 7 pm"><Toggle on={r.weekly} onChange={v => setR("weekly", v)} label="Weekly recap" /></Row>
+        <Row title="Monthly" sub="The 1st at 9 am"><Toggle on={r.monthly} onChange={v => setR("monthly", v)} label="Monthly recap" /></Row>
+        <Row title="Yearly" sub="2026, Drawn. on January 1"><Toggle on={r.yearly} onChange={v => setR("yearly", v)} label="Yearly recap" /></Row>
+        <p className="kicker">Your data</p><i className="hr" />
+        <Row title="Export your rides" sub="Every ride as a spreadsheet"><button type="button" className="val" onClick={exportRides}>Export</button></Row>
+        <a className="frow" href="/privacy"><span className="txt"><b>Privacy</b><span>What Linework keeps, in plain words</span></span></a>
+        <button type="button" className="frow" onClick={() => setErase(true)}><span className="txt"><b>Erase this phone</b><span>Removes every ride and print</span></span></button>
       </div>
-
-      <p className="t-label muted section">Today’s lines</p>
-      <div className="row"><span className="txt"><b className="t-headline">{lines.length ? lines.map(label).join(", ").replace(/, ([^,]*)$/, " and $1") : "None yet"}</b><span className="t-caption muted">Shown first in the grid</span></span></div>
-
-      <p className="t-label muted section">Recaps</p>
-      <div className="row"><span className="txt"><b className="t-headline">Weekly</b><span className="t-caption muted">Sundays at 7 pm</span></span><Toggle on={r.weekly} onChange={v => setR("weekly", v)} label="Weekly recap" /></div>
-      <div className="row"><span className="txt"><b className="t-headline">Monthly</b><span className="t-caption muted">The 1st at 9 am</span></span><Toggle on={r.monthly} onChange={v => setR("monthly", v)} label="Monthly recap" /></div>
-      <div className="row"><span className="txt"><b className="t-headline">Yearly</b><span className="t-caption muted">2026, Drawn. on January 1</span></span><Toggle on={r.yearly} onChange={v => setR("yearly", v)} label="Yearly recap" /></div>
-
-      <p className="t-label muted section">Your data</p>
-      <div className="row"><span className="txt"><b className="t-headline">Export your rides</b><span className="t-caption muted">Every ride as a spreadsheet</span></span><button type="button" className="row-act" onClick={exportRides}>Export</button></div>
-      <a className="row" href="/privacy"><span className="txt"><b className="t-headline">Privacy</b><span className="t-caption muted">What Linework keeps, in plain words</span></span></a>
-      <button type="button" className="row" onClick={() => setErase(true)}><span className="txt"><b className="t-headline">Erase this phone</b><span className="t-caption muted">Removes every ride and print</span></span></button>
     </div>
   );
 }

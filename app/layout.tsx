@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import RegisterSW from "@/components/RegisterSW";
 import { Arimo } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +19,7 @@ export const viewport: Viewport = { themeColor: "#000000", width: "device-width"
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={arimo.variable}>
-      <body>{children}</body>
+      <body>{children}<RegisterSW /></body>
     </html>
   );
 }

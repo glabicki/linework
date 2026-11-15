@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // keeps the dev badge off the phone preview at /phone
+  devIndicators: false,
 };
 
 export default nextConfig;

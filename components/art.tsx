@@ -26,16 +26,16 @@ export function InkDots({ lines }: { lines: Line[] }) {
 }
 
 // White card: the print plus its date and ride count.
-export function DayCard({ day, rides, size = "large", onClick, stamp }: { day: string; rides: Ride[]; size?: "large" | "small" | "tiny"; onClick?: () => void; stamp?: string }) {
+export function DayCard({ day, rides, size = "large", onClick, stamp }: { day: string; rides: Ride[]; size?: "large" | "plain"; onClick?: () => void; stamp?: string }) {
   const lines = rides.map(r => r.line);
   const body = (
     <>
       {stamp && <span className="stamp">{stamp}</span>}
       <DayPrint day={day} lines={lines} />
-      {size !== "tiny" && (
+      {size === "large" && (
         <span className="cap">
           <b>{dayShort(day)}</b>
-          <span><InkDots lines={lines} />{rides.length ? plural(rides.length, "ride") : "No rides yet"}</span>
+          <span><InkDots lines={lines} />{rides.length ? plural(rides.length, "ride") + (onClick ? " ›" : "") : "No rides yet"}</span>
         </span>
       )}
     </>
@@ -46,11 +46,12 @@ export function DayCard({ day, rides, size = "large", onClick, stamp }: { day: s
 }
 
 // A line's route as a small mark. Muted until ridden.
-export const LineMark = memo(function LineMark({ line, lit, size = 40 }: { line: Line; lit: boolean; size?: number }) {
-  const b = markBox(line, 1.16);
+// Figma Line marker: route fills 42 of a 52 box, 5px stroke.
+export const LineMark = memo(function LineMark({ line, lit, size = 52 }: { line: Line; lit: boolean; size?: number }) {
+  const b = markBox(line, 1.24);
   return (
     <svg width={size} height={size} viewBox={`${b.x.toFixed(0)} ${b.y.toFixed(0)} ${b.s.toFixed(0)} ${b.s.toFixed(0)}`} aria-hidden="true">
-      <path d={handPath(line, line + "dot")} fill="none" stroke={lit ? COLOR[line] : "#34302C"} strokeWidth={(b.s * 0.095).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={handPath(line, line + "dot")} fill="none" stroke={lit ? COLOR[line] : "#34302C"} strokeWidth={(b.s * 0.096).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 });
