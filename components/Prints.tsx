@@ -5,7 +5,6 @@ import { Icon } from "./icons";
 import { MON, MONL, addDays, dateOf, dayShort, keyOf, plural, weekStart } from "@/lib/dates";
 import { linesOf, minutes, ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
-import { shareWeek } from "@/lib/share";
 
 export function TabHead({ title, children }: { title: string; children?: React.ReactNode }) {
   return <header className="tab-head"><h1 className="t-page">{title}</h1>{children}</header>;
@@ -23,7 +22,7 @@ function Stats({ list }: { list: Ride[] }) {
 }
 
 // Figma 30:206 Week, 32:236 Month, 175:3681 No prints yet
-export default function Prints({ rides, today, nav, toast }: { rides: Ride[]; today: string; nav: Nav; toast: (m: string) => void }) {
+export default function Prints({ rides, today, nav }: { rides: Ride[]; today: string; nav: Nav }) {
   const [view, setView] = useState<"week" | "month">("week");
   const [wk, setWk] = useState(weekStart(today));
   const t = dateOf(today);
@@ -95,14 +94,7 @@ export default function Prints({ rides, today, nav, toast }: { rides: Ride[]; to
 
   return (
     <div className="tab">
-      <TabHead title="Prints">
-        {view === "week" && (
-          <button type="button" className="share" aria-label="Share this week as an image" onClick={async () => {
-            try { if ((await shareWeek(wk, rides)) === "saved") toast("Saved the week as an image"); }
-            catch (e) { if ((e as Error).name !== "AbortError") toast("Couldn’t make the image. Try again."); }
-          }}><Icon name="share" /></button>
-        )}
-      </TabHead>
+      <TabHead title="Prints" />
       <div className="prints-body">
         <div className="seg" role="tablist">
           <button type="button" role="tab" aria-selected={view === "week"} onClick={() => setView("week")}>Week</button>

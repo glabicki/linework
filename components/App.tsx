@@ -78,11 +78,11 @@ export default function App() {
   else if (page?.kind === "year") view = <YearSoFar rides={rides} today={today} year={page.year} nav={nav} toast={toast} />;
   else if (page?.kind === "home") view = <HomeScreen nav={nav} />;
   else if (page?.kind === "account") view = <Account rides={rides} settings={settings} nav={nav} toast={toast} />;
-  else if (tab === "prints") view = <Prints rides={rides} today={today} nav={nav} toast={toast} />;
+  else if (tab === "prints") view = <Prints rides={rides} today={today} nav={nav} />;
   else if (tab === "recaps") view = <Recaps rides={rides} today={today} nav={nav} />;
   else {
     const card = dueCards(new Date(), rides, settings)[0];
-    view = <Today rides={rides} day={today} mine={settings.lines} nav={nav} onLog={onLog} recap={card && <RecapCard card={card} rides={rides} nav={nav} toast={toast} />} />;
+    view = <Today rides={rides} day={today} mine={settings.lines} nav={nav} onLog={onLog} recap={card && <RecapCard card={card} nav={nav} />} />;
   }
 
   if (!mounted) return <div className="app" />;
