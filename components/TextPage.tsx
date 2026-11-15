@@ -20,6 +20,7 @@ export default function TextPage({ title, sub, items, after, back = "/" }: { tit
             })}
             {after && <p className="page-note" style={{ paddingTop: 0, lineHeight: "17px" }}>{after}</p>}
           </div>
+          <p className="credit">© 2026 Ashley Glabicki</p>
         </div>
       </main>
     </div>

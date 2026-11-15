@@ -302,3 +302,5 @@ button.card:active { transform: scale(0.985); opacity: 0.9; }
 .desk-note p { font-size: 15px; line-height: 21px; color: var(--ui-text-soft); }
 @media (max-width: 899px) { .desk-note { display: none; } }
 .today .recap-card { border-top: 0; padding-top: 6px; }
+.credit { font-size: 12px; line-height: 16px; color: #8a847b; padding: 8px var(--gutter) 40px; }
+.desk-note .credit { padding: 12px 0 0; font-size: 12px; line-height: 16px; color: #8a847b; }
