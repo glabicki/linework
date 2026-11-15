@@ -11,7 +11,8 @@ function useInBrowser() {
   const [v, setV] = useState(false);
   useEffect(() => {
     const standalone = matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    setV(!standalone && innerWidth <= 500);
+    const framed = window.self !== window.top; // the desktop phone frame has its own note
+    setV(!standalone && !framed && innerWidth <= 500);
   }, []);
   return v;
 }

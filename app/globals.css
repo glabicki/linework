@@ -295,12 +295,10 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 /* tappable prints give a little when pressed */
 button.card { transition: transform .12s ease, opacity .12s ease; }
 button.card:active { transform: scale(0.985); opacity: 0.9; }
-/* On a computer: the phone app in the middle, with a note */
-.desk-note { display: none; }
-@media (min-width: 900px) and (hover: hover) {
-  .desk-note { display: flex; flex-direction: column; gap: 14px; position: fixed; left: max(32px, calc(50% - 215px - 340px)); top: 50%; transform: translateY(-50%); width: 280px; }
-  .desk-note h2 { font-size: 40px; line-height: 40px; font-weight: 700; letter-spacing: -0.015em; }
-  .desk-note p { font-size: 15px; line-height: 21px; color: var(--ui-text-soft); }
-  .app { border-left: 1px solid var(--ui-line); border-right: 1px solid var(--ui-line); }
-}
+/* On a computer: the app stays in a phone frame, with a note beside it */
+.phone-stage { min-height: 100dvh; background: #1c1b1a; display: flex; align-items: center; justify-content: center; gap: 72px; padding: 24px 16px; }
+.desk-note { width: 280px; display: flex; flex-direction: column; gap: 14px; }
+.desk-note h2 { font-size: 40px; line-height: 40px; font-weight: 700; letter-spacing: -0.015em; color: var(--ui-white); }
+.desk-note p { font-size: 15px; line-height: 21px; color: var(--ui-text-soft); }
+@media (max-width: 899px) { .desk-note { display: none; } }
 .today .recap-card { border-top: 0; padding-top: 6px; }
