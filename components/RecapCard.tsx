@@ -8,7 +8,7 @@ import type { Nav } from "./App";
 export default function RecapCard({ card, nav }: { card: Card; nav: Nav }) {
   const act = () => {
     markSeen(card.id);
-    if (card.kind === "week") nav.tab("prints");
+    if (card.kind === "week") nav.tab("prints", card.start);
     else if (card.kind === "month") nav.tab("recaps");
     else if (card.kind === "year") nav.push({ kind: "year", year: card.year });
     else nav.push({ kind: "account" });

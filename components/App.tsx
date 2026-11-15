@@ -26,11 +26,12 @@ type Page =
   | { kind: "account" }
   | { kind: "year"; year?: number }
   | { kind: "home" };
-export type Nav = { push: (p: Page) => void; pop: () => void; replace: (p: Page) => void; tab: (t: Tab) => void };
+export type Nav = { push: (p: Page) => void; pop: () => void; replace: (p: Page) => void; tab: (t: Tab, at?: string) => void };
 
 export default function App() {
   const { rides, settings } = useStore();
   const [tab, setTab] = useState<Tab>("today");
+  const [at, setAt] = useState<string>(); // a week to open Prints on
   const [stack, setStack] = useState<Page[]>([]);
   const [today, setToday] = useState(todayKey());
   const [toastMsg, setToastMsg] = useState<{ msg: string; undo?: () => void } | null>(null);
@@ -58,7 +59,7 @@ export default function App() {
     push: p => setStack(s => [...s, p]),
     pop: () => setStack(s => s.slice(0, -1)),
     replace: p => setStack(s => [...s.slice(0, -1), p]),
-    tab: t => { setStack([]); setTab(t); },
+    tab: (t, a) => { setStack([]); setTab(t); setAt(a); },
   };
 
   const onLog = (l: Line) => {
@@ -78,7 +79,7 @@ export default function App() {
   else if (page?.kind === "year") view = <YearSoFar rides={rides} today={today} year={page.year} nav={nav} toast={toast} />;
   else if (page?.kind === "home") view = <HomeScreen nav={nav} />;
   else if (page?.kind === "account") view = <Account rides={rides} settings={settings} nav={nav} toast={toast} />;
-  else if (tab === "prints") view = <Prints rides={rides} today={today} nav={nav} />;
+  else if (tab === "prints") view = <Prints key={at ?? "now"} at={at} rides={rides} today={today} nav={nav} />;
   else if (tab === "recaps") view = <Recaps rides={rides} today={today} nav={nav} />;
   else {
     const card = dueCards(new Date(), rides, settings)[0];

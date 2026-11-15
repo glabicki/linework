@@ -40,8 +40,7 @@ export function dueCards(now: Date, rides: Ride[], settings: Settings): RecapCar
     const start = t.getDay() === 0 && now.getHours() >= 19 ? ws : addDays(ws, -7);
     const end = addDays(start, 6);
     const list = rides.filter(r => r.day >= start && r.day <= end);
-    const s = dateOf(start), e = dateOf(end);
-    const range = s.getMonth() === e.getMonth() ? `${MON[s.getMonth()]} ${s.getDate()} – ${e.getDate()}` : `${MON[s.getMonth()]} ${s.getDate()} – ${MON[e.getMonth()]} ${e.getDate()}`;
+    const range = weekRange(start);
     if (list.length) out.push({ id: `week-${start}`, kind: "week", kicker: "Weekly recap", title: `${fmtH(minutes(list))} underground`, body: `${range} · ${summary(list)}`, start });
   }
 
@@ -61,4 +60,9 @@ export function yearCols(cells: number, width = 345, height = 470, gap = 4) {
     if (Math.ceil(cells / c) * (w * 132 / 108 + gap) <= height) return c;
   }
   return 18;
+}
+
+export function weekRange(start: string) {
+  const s = dateOf(start), e = dateOf(addDays(start, 6));
+  return s.getMonth() === e.getMonth() ? `${MON[s.getMonth()]} ${s.getDate()} – ${e.getDate()}` : `${MON[s.getMonth()]} ${s.getDate()} – ${MON[e.getMonth()]} ${e.getDate()}`;
 }

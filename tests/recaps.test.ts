@@ -52,3 +52,12 @@ describe("year grid", () => {
     expect(yearCols(366)).toBeLessThanOrEqual(18);
   });
 });
+
+import { weekRange } from "@/lib/recaps";
+
+describe("week ranges", () => {
+  it("spans months when it has to", () => {
+    expect(weekRange("2026-11-09")).toBe("Nov 9 – 15");
+    expect(weekRange("2026-10-26")).toBe("Oct 26 – Nov 1");
+  });
+});

@@ -244,9 +244,6 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .year-btn { background: var(--ui-white); color: #0d0d0d; font-size: 18px; line-height: 21px; font-weight: 700; padding: 15px 0; text-align: center; margin-top: 12px; }
 
 /* Recaps (Figma header 112) */
-.recaps-head { height: 112px; padding-top: 16px; }
-.recaps-head div { display: flex; flex-direction: column; gap: 2px; }
-.recaps-head p { font-size: 13px; line-height: 16px; color: var(--ui-text-soft); }
 .recaps-body { padding: 16px var(--gutter) 24px; display: flex; flex-direction: column; gap: 16px; }
 .drawn { display: flex; flex-direction: column; gap: 14px; }
 .bands { display: grid; grid-template-columns: repeat(5, 1fr); height: 110px; }

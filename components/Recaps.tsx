@@ -3,6 +3,7 @@ import { COLOR, type Line } from "@/lib/lines";
 import { MONL, dateOf, keyOf, plural } from "@/lib/dates";
 import { minutes, ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
+import { TabHead } from "./Prints";
 
 function topLines(list: Ride[], n: number) {
   const c = new Map<Line, number>();
@@ -33,7 +34,7 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
   // Figma 115:1758 Recaps · with 2026, Drawn. and 175:3844 Recaps · New user
   return (
     <div className="tab">
-      <header className="tab-head recaps-head"><div><p>Your recaps</p><h1 className="t-page">Recaps</h1></div></header>
+      <TabHead title="Recaps" />
       <div className="recaps-body">
         <section className="drawn">
           <div className="bands" aria-hidden="true">

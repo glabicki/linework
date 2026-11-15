@@ -22,9 +22,9 @@ function Stats({ list }: { list: Ride[] }) {
 }
 
 // Figma 30:206 Week, 32:236 Month, 175:3681 No prints yet
-export default function Prints({ rides, today, nav }: { rides: Ride[]; today: string; nav: Nav }) {
+export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today: string; nav: Nav; at?: string }) {
   const [view, setView] = useState<"week" | "month">("week");
-  const [wk, setWk] = useState(weekStart(today));
+  const [wk, setWk] = useState(at ?? weekStart(today));
   const t = dateOf(today);
   const [mo, setMo] = useState({ y: t.getFullYear(), m: t.getMonth() });
   const first = rides.length ? rides.reduce((a, r) => (r.day < a ? r.day : a), today) : today;
