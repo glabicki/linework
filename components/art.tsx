@@ -29,8 +29,8 @@ export function InkDots({ lines }: { lines: Line[] }) {
   return <span className="inks" aria-hidden="true">{inks.map(c => <i key={c} style={{ background: c }} />)}</span>;
 }
 
-// White card: the print plus its date and ride count.
-export function DayCard({ day, rides, size = "large", onClick, flip }: { day: string; rides: Ride[]; size?: "large" | "plain"; onClick?: () => void; flip?: boolean }) {
+// White card: the print plus its date and ride count, and under them the day's caption if it has one.
+export function DayCard({ day, rides, size = "large", onClick, flip, note }: { day: string; rides: Ride[]; size?: "large" | "plain"; onClick?: () => void; flip?: boolean; note?: string }) {
   const lines = rides.map(r => r.line);
   // The line logged seconds ago gets plotted in again.
   const last = rides.reduce<Ride | undefined>((a, r) => (!a || r.at > a.at ? r : a), undefined);
@@ -42,12 +42,13 @@ export function DayCard({ day, rides, size = "large", onClick, flip }: { day: st
         <span className="cap">
           <b>{dayShort(day)}</b>
           <span><InkDots lines={lines} />{rides.length ? plural(rides.length, "ride") : "No rides yet"}</span>
+          {note && rides.length > 0 && <span className="note">{note}</span>}
         </span>
       )}
     </>
   );
   const cls = `card card-${size}`;
-  const aria = `${dayShort(day)}, ${rides.length ? plural(rides.length, "ride") : "no rides"}`;
+  const aria = `${dayShort(day)}, ${rides.length ? plural(rides.length, "ride") : "no rides"}${note && rides.length ? `. ${note}` : ""}`;
   const tag = flip ? { "data-day": day } : {};
   return onClick ? <button type="button" className={cls} onClick={onClick} aria-label={aria} {...tag}>{body}</button> : <div className={cls} role="img" aria-label={aria} {...tag}>{body}</div>;
 }

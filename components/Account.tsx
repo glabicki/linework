@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { backupJSON, eraseAll, markBackedUp, restoreBackup, setSettings, toCSV, type Ride, type Settings } from "@/lib/rides";
+import { backupJSON, eraseAll, markBackedUp, restoreBackup, setSettings, toCSV, useStore, type Ride, type Settings } from "@/lib/rides";
 import { monthDay, plural, todayKey } from "@/lib/dates";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
@@ -13,6 +13,7 @@ function Toggle({ on, onChange, label: l }: { on: boolean; onChange: (v: boolean
 
 export default function Account({ rides, settings, nav, toast, due }: { rides: Ride[]; settings: Settings; nav: Nav; toast: (m: string) => void; due?: boolean }) {
   const [erase, setErase] = useState(false);
+  const { notes } = useStore();
   const r = settings.recaps;
   const setR = (k: keyof Settings["recaps"], v: boolean) => setSettings({ recaps: { ...r, [k]: v } });
 
@@ -25,10 +26,10 @@ export default function Account({ rides, settings, nav, toast, due }: { rides: R
       return true;
     } catch { return false; }
   };
-  const exportRides = () => send(new File([toCSV(rides)], "linework-rides.csv", { type: "text/csv" }));
+  const exportRides = () => send(new File([toCSV(rides, notes)], "linework-rides.csv", { type: "text/csv" }));
   const saveBackup = async () => {
     const day = todayKey();
-    if (await send(new File([backupJSON({ rides, settings })], `linework-backup-${day}.json`, { type: "application/json" }))) {
+    if (await send(new File([backupJSON({ rides, settings, notes })], `linework-backup-${day}.json`, { type: "application/json" }))) {
       markBackedUp(day);
       toast("Backup saved");
     }

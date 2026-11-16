@@ -43,6 +43,6 @@ describe("backup", () => {
 describe("export", () => {
   it("writes a spreadsheet row per ride, quoting stations", () => {
     const csv = toCSV([ride({ from: "Jay St-MetroTech", to: '14 "St"', time: "08:41", min: 12, est: false })]);
-    expect(csv.split("\n")).toEqual(["date,time,line,from,to,minutes,timing", '2026-11-15,08:41,A,"Jay St-MetroTech","14 ""St""",12,scheduled']);
+    expect(csv.split("\n")).toEqual(["date,time,line,from,to,minutes,timing,caption", '2026-11-15,08:41,A,"Jay St-MetroTech","14 ""St""",12,scheduled,']);
   });
 });

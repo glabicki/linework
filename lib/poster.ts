@@ -10,10 +10,12 @@ const FONT = "'Helvetica Neue', Helvetica, Arimo, Arial, sans-serif", INK = "#2A
 
 // The file itself: the drawing, its inks and its date. No app chrome, no logo.
 // `day` seeds the wobble; a year poster passes its year there and as the title.
-export function posterSvg(o: { day: string; legs: Leg[]; rides: number; size: [number, number]; paper: Paper; caption: boolean; title?: string; flat?: boolean }) {
+// `note` is the day's caption, set as its own line between the date and the line count.
+export function posterSvg(o: { day: string; legs: Leg[]; rides: number; size: [number, number]; paper: Paper; caption: boolean; title?: string; flat?: boolean; note?: string }) {
   const [iw, ih] = o.size, W = 1000, H = Math.round((W * ih) / iw), m = 72, bg = PAPERS[o.paper];
   // The mini's caption is set larger so it still reads at 2 inches wide.
-  const k = iw < 4 ? 1.6 : 1, cap = o.caption ? Math.round(150 * k) : 0;
+  const k = iw < 4 ? 1.6 : 1, note = o.caption && o.note?.trim() ? fit(o.note.trim(), (W - 2 * m) / (28 * k * 0.55)) : "";
+  const lift = note ? 40 : 0, cap = o.caption ? Math.round((150 + lift) * k) : 0;
   const strokes = strokesFor(o.day, o.legs), lines = o.legs.map(l => l.line);
   const f = frameFor(strokes), sw = strokeWidth(f.w, 300);
   const art = strokes.map(s =>
@@ -27,16 +29,25 @@ export function posterSvg(o: { day: string; legs: Leg[]; rides: number; size: [n
     const dots = inkRow(inks.length, W - 2 * m, title!.length * 34 * k * 0.6, sub.length * 25 * k * 0.55, k);
     body += `<rect x="${m}" y="${y}" width="${W - 2 * m}" height="${3.5 * k}" fill="${INK}"/>`;
     body += `<text x="${m}" y="${y + 62 * k}" font-family="${FONT}" font-weight="700" font-size="${34 * k}" fill="${INK}">${title}</text>`;
+    if (note) body += `<text x="${m}" y="${y + 102 * k}" font-family="${FONT}" font-size="${28 * k}" fill="${INK}">${esc(note)}</text>`;
     // On the mini the dots are part of the line count's text, so they follow the words wherever they end.
     const mini = k > 1, fs = (2 * dots.r) / DOT, inline = mini
       ? `<tspan dx="${(16 * k).toFixed(1)}" font-size="${fs.toFixed(1)}" letter-spacing="${(dots.step - fs * DOT_ADV).toFixed(1)}">${inks.map(c => `<tspan fill="${c}">●</tspan>`).join("")}</tspan>` : "";
-    body += `<text x="${m}" y="${y + 100 * k}" font-family="${FONT}" font-size="${25 * k}" fill="${SOFT}">${sub}${inline}</text>`;
+    body += `<text x="${m}" y="${y + (100 + lift) * k}" font-family="${FONT}" font-size="${25 * k}" fill="${SOFT}">${sub}${inline}</text>`;
     if (!mini) {
-      const cy = y + (dots.row === "title" ? 52 : 91) * k, x0 = W - m - dots.width;
+      const cy = y + (dots.row === "title" ? 52 : 91 + lift) * k, x0 = W - m - dots.width;
       body += inks.map((c, i) => `<circle cx="${(x0 + dots.r + i * dots.step).toFixed(1)}" cy="${cy.toFixed(1)}" r="${dots.r.toFixed(1)}" fill="${c}"/>`).join("");
     }
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${bg}"/>${body}</svg>`;
+}
+
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+// Cut a caption to what fits on one line, at a word where it can.
+function fit(s: string, chars: number) {
+  if (s.length <= chars) return s;
+  const cut = s.slice(0, Math.floor(chars) - 1), sp = cut.lastIndexOf(" ");
+  return (sp > chars * 0.6 ? cut.slice(0, sp) : cut).trimEnd() + "…";
 }
 
 // The ● glyph: its circle is about this share of the font size across, and its advance this share.

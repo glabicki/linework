@@ -1,7 +1,7 @@
 "use client";
 import { COLOR, label, type Line } from "@/lib/lines";
 import { DOWL, MONL, addDays, dateOf, keyOf, plural } from "@/lib/dates";
-import { minutes, ridesOn, type Ride } from "@/lib/rides";
+import { minutes, ridesOn, useStore, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
 import { TabHead } from "./Prints";
 import { DayPrint, LineMark } from "./art";
@@ -97,6 +97,8 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
   const perDayH = minutes(last) / 60 / days;
 
   const busiest = perDay.indexOf(maxDay);
+  const { notes } = useStore();
+  const busyNote = notes[keyOf(new Date(lm.getFullYear(), lm.getMonth(), busiest + 1))]?.trim();
   const now = inMonth(t).filter(r => r.day <= today), nowMin = Math.round(minutes(now));
 
   // Figma 115:1758 Recaps · with 2026, Drawn., 175:3844 Recaps · New user and 175:3986 Recaps · Jan 2 (replay ready)
@@ -137,7 +139,7 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
               {perDay.map((n, i) => <i key={i} className={n === 0 ? "zero" : i === busiest ? "top" : ""} style={{ height: n ? `${(n / maxDay) * 32}px` : "2px" }} />)}
             </div>
             <div className="bars-axis"><span>{MONL[lm.getMonth()].slice(0, 3)} 1</span><span>rides per day</span><span>{MONL[lm.getMonth()].slice(0, 3)} {days}</span></div>
-            <p className="busiest">Busiest day: {DOWL[new Date(lm.getFullYear(), lm.getMonth(), busiest + 1).getDay()]}, {MONL[lm.getMonth()].slice(0, 3)} {busiest + 1}, {plural(maxDay, "ride")}</p>
+            <p className="busiest">Busiest day: {DOWL[new Date(lm.getFullYear(), lm.getMonth(), busiest + 1).getDay()]}, {MONL[lm.getMonth()].slice(0, 3)} {busiest + 1}, {plural(maxDay, "ride")}{busyNote ? ` · ${busyNote}` : ""}</p>
             <p className="sub-h">Most ridden</p>
             <TopLines list={last} />
           </section>

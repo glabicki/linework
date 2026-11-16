@@ -2,7 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PAPERS, SIZES, posterSvg, savePoster, type Paper } from "@/lib/poster";
 import { dayLong, keyOf, dateOf } from "@/lib/dates";
-import { ridesOn, type Ride } from "@/lib/rides";
+import { ridesOn, useStore, type Ride } from "@/lib/rides";
+import { captionFor } from "@/lib/notes";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
 
@@ -15,7 +16,9 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
   const [paper, setPaper] = useState<Paper>("white");
   const [caption, setCaption] = useState(true);
   const seed = year ? String(year) : day;
-  const svg = useMemo(() => posterSvg({ day: seed, legs: list, rides: list.length, size, paper, caption, title: year ? String(year) : undefined, flat: !!year }), [seed, list, size, paper, caption, year]);
+  const { notes } = useStore();
+  const note = year ? undefined : captionFor(day, rides, notes);
+  const svg = useMemo(() => posterSvg({ day: seed, legs: list, rides: list.length, size, paper, caption, note, title: year ? String(year) : undefined, flat: !!year }), [seed, list, size, paper, caption, note, year]);
   const paperRef = useRef<HTMLDivElement>(null);
   // Every change re-plots the print: the sheet drops in like it's being pinned up, then the pen draws each line.
   useEffect(() => {
@@ -54,7 +57,7 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
           <div className="opt"><span>Paper</span>
             <div>{(Object.keys(PAPERS) as Paper[]).map(p => <button key={p} type="button" aria-pressed={p === paper} onClick={() => setPaper(p)}>{p === "white" ? "White" : "Warm"}</button>)}</div></div>
           <div className="opt"><span>Caption</span>
-            <div><button type="button" aria-pressed={caption} onClick={() => setCaption(true)}>{year ? "Year and lines" : "Date and lines"}</button><button type="button" aria-pressed={!caption} onClick={() => setCaption(false)}>Lines only</button></div></div>
+            <div><button type="button" aria-pressed={caption} onClick={() => setCaption(true)}>{year ? "Year and lines" : note ? "Date and caption" : "Date and lines"}</button><button type="button" aria-pressed={!caption} onClick={() => setCaption(false)}>Lines only</button></div></div>
         </div>
       </div>
       <footer className="sheet-foot">

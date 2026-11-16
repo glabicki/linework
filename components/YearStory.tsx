@@ -5,7 +5,8 @@ import { handPath, markBox } from "@/lib/art";
 import { DOW, MON, MONL, dateOf, monthDay, plural } from "@/lib/dates";
 import { posterSvg, savePoster } from "@/lib/poster";
 import { yearStory } from "@/lib/recaps";
-import type { Ride } from "@/lib/rides";
+import { useStore, type Ride } from "@/lib/rides";
+import { captionFor, yourWords } from "@/lib/notes";
 import { DayCard, DayPrint, InkDots, LineMark } from "./art";
 import { YearGrid } from "./YearSoFar";
 import type { Nav } from "./App";
@@ -21,6 +22,8 @@ type Page = { key: string; bg: string; fg: string; cls?: string; body: React.Rea
 // 2026, Drawn. (Figma section 05): tap the right side for the next page, the left to go back.
 export default function YearStory({ rides, today, year: y, nav, toast }: { rides: Ride[]; today: string; year: number; nav: Nav; toast: (m: string) => void }) {
   const s = useMemo(() => yearStory(rides, y), [rides, y]);
+  const { notes } = useStore();
+  const words = yourWords(notes, y);
   const total = s.rides.length;
   const done = `${y}-12-31` < today;
   const end = done ? `${y}-12-31` : today;
@@ -125,7 +128,17 @@ export default function YearStory({ rides, today, year: y, nav, toast }: { rides
         <p className="st-kick">Your biggest day</p>
         <h2 className="st-h st-date">{shortDay(s.busiest.day)}</h2>
         <p className="st-note">{plural(s.busiest.n, "ride")} on {plural(dayCount.size, "line")}.</p>
-        <div className="st-card"><DayCard day={s.busiest.day} rides={dayRides} /></div>
+        <div className="st-card"><DayCard day={s.busiest.day} rides={dayRides} note={captionFor(s.busiest.day, rides, notes)} /></div>
+      </>,
+    });
+    // Only once there are a few: the year read back in the captions you wrote.
+    if (words.length >= 3) pages.push({
+      key: "words", bg: NIGHT, fg: WHITE, body: <>
+        <p className="st-kick">In your words</p>
+        <ol className="st-words">
+          {words.map(w => <li key={w.day}><span>{shortDay(w.day)}</span><b>{w.text}</b></li>)}
+        </ol>
+        <p className="st-note">No one else’s {y} looks like this.</p>
       </>,
     });
     pages.push(

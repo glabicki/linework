@@ -4,7 +4,8 @@ import { DayCard, LineMark } from "./art";
 import { ORDER, label, lineName, scheduledMin, stationName, type Line } from "@/lib/lines";
 import { usualRide, type Stretch } from "@/lib/usual";
 import { DOWL, MONL, dateOf, plural, to12 } from "@/lib/dates";
-import { minutes, ridesOn, type Ride } from "@/lib/rides";
+import { minutes, ridesOn, useStore, type Ride } from "@/lib/rides";
+import { captionFor } from "@/lib/notes";
 import type { Nav } from "./App";
 
 // Not opened from the Home Screen, on a phone-sized screen (Figma 178:4413).
@@ -54,6 +55,7 @@ function useCountUp(to: number) {
 // Figma 74:953 Today · Poster, 89:1403 First day
 export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: Ride[]; day: string; mine: Line[]; nav: Nav; onLog: (l: Line, s?: Stretch) => void; recap?: React.ReactNode }) {
   const list = ridesOn(rides, day);
+  const { notes } = useStore();
   const d = dateOf(day);
   const counts: Record<string, number> = {};
   list.forEach(r => (counts[r.line] = (counts[r.line] ?? 0) + 1));
@@ -101,7 +103,7 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
       )}
 
       <div className="plate">
-        <DayCard day={day} rides={list} onClick={() => nav.push({ kind: "day", day })} />
+        <DayCard day={day} rides={list} note={captionFor(day, rides, notes)} onClick={() => nav.push({ kind: "day", day })} />
       </div>
 
       <div className="minutes" aria-live="polite">

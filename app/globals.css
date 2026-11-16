@@ -113,6 +113,13 @@ html::-webkit-scrollbar { display: none; }
 .card-large .print-art { inset: 4.68% 6.09% auto; width: 88.12%; height: auto; aspect-ratio: 4 / 5; }
 .card-large .cap { top: 89.2%; bottom: auto; left: 6.09%; right: 6.09%; font-size: 3.77cqw; line-height: 4.35cqw; }
 .card-large .cap > span { font-size: 3.19cqw; color: #6f6a64; gap: 1.74cqw; }
+.card .cap { flex-wrap: wrap; }
+.day-note { display: flex; align-items: baseline; gap: 16px; padding: 14px 0 2px; font-size: 15px; line-height: 20px; }
+.day-note span { color: var(--ui-text-soft); flex: none; }
+.day-note input { flex: 1; min-width: 0; padding: 0; color: var(--ui-white); outline: none; }
+.day-note input::placeholder { color: var(--ui-text-soft); opacity: 1; }
+.day-note:focus-within span { color: var(--ui-white); }
+.card .cap > .note { display: block; flex-basis: 100%; margin-top: 0.6cqw; color: var(--print-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-large .inks { gap: 0.87cqw; }
 .card-large .inks i { width: 2.61cqw; height: 2.61cqw; }
 .inks { display: inline-flex; gap: 2px; }
@@ -240,6 +247,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .ob-nav .progress i.on { background: var(--ui-text); }
 .ob-nav .skip { font-size: 13px; line-height: 16px; color: var(--ui-text-soft); padding: 8px 0 8px 12px; }
 .ob .page-copy { padding-bottom: 0; }
+.ob .page-copy .ob-tag { color: var(--ui-text); }
 .ob-grid { padding-top: 32px; }
 .ob-preview { padding: 28px var(--gutter) 32px; }
 .ob-preview .recap-card { margin: 0; }
@@ -359,6 +367,10 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .st-date { line-height: 60px; }
 .st-num { font-size: 200px; line-height: 160px; font-weight: 700; letter-spacing: -0.01em; margin-left: -6px; }
 .st-note { font-size: 17px; line-height: 23px; font-weight: 700; }
+.st-words { list-style: none; margin: 28px 0 auto; padding: 0; display: flex; flex-direction: column; }
+.st-words li { display: flex; flex-direction: column; gap: 4px; padding: 16px 0; border-top: 1px solid rgba(255, 255, 255, .28); }
+.st-words span { font-size: 13px; line-height: 16px; color: rgba(255, 255, 255, .72); }
+.st-words b { font-size: 28px; line-height: 32px; letter-spacing: -0.01em; }
 .st-end { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .st-end .st-h { line-height: 52px; }
 .st-page .year-grid { margin-bottom: 0; }

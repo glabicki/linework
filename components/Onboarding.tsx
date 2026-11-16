@@ -7,10 +7,11 @@ import { setSettings, timing, type Ride, type Settings } from "@/lib/rides";
 
 // Sample days for the welcome screen, as in Figma 35:312.
 const sample = (day: string, lines: Line[]): Ride[] => lines.map((line, i) => ({ id: day + i, day, line, ...timing(line), at: 0 }));
-const HERO: [string, Ride[]][] = [
-  ["2026-10-30", sample("2026-10-30", ["L", "A", "4", "L", "A", "4"])],
-  ["2026-11-06", sample("2026-11-06", ["L", "A", "N", "A"])],
-  ["2026-11-07", sample("2026-11-07", ["G", "7", "G"])],
+// Sample days, captioned the way someone might caption their own.
+const HERO: [string, Ride[], string][] = [
+  ["2026-10-30", sample("2026-10-30", ["L", "A", "4", "L", "A", "4"]), "Late show at Barclays"],
+  ["2026-11-06", sample("2026-11-06", ["L", "A", "N", "A"]), "Dinner in Astoria"],
+  ["2026-11-07", sample("2026-11-07", ["G", "7", "G"]), "Sunset at Gantry Plaza"],
 ];
 
 function Nav({ step, onBack, onSkip }: { step: number; onBack: () => void; onSkip: () => void }) {
@@ -35,11 +36,12 @@ export default function Onboarding({ settings }: { settings: Settings }) {
     return (
       <div className="sheet ob">
         <div className="ob-hero" aria-hidden="true">
-          {HERO.map(([day, rides]) => <div key={day}><DayCard day={day} rides={rides} /></div>)}
+          {HERO.map(([day, rides, note]) => <div key={day}><DayCard day={day} rides={rides} note={note} /></div>)}
         </div>
         <div className="page-copy">
           <h1 className="t-large">Every ride, drawn.</h1>
-          <p>Tap the NYC subway lines you take. Each day becomes its own small print, and every week you see how long you spent underground. It’s free, with no account needed.</p>
+          <p className="ob-tag">Eight million New Yorkers. One subway system. No two journeys alike.</p>
+          <p>Tap the lines you ride and each day becomes a small print of your New York, with a line for what the day was. It’s free, with no account needed.</p>
         </div>
         <footer className="sheet-foot ob-foot">
           <button type="button" className="btn" onClick={() => setStep(1)}>Get started</button>

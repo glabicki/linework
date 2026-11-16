@@ -8,7 +8,7 @@ const arimo = Arimo({ subsets: ["latin"], weight: ["400", "700"], variable: "--f
 
 export const metadata: Metadata = {
   title: "Linework",
-  description: "Every ride, drawn. Log your subway rides and each day becomes a print.",
+  description: "Eight million New Yorkers. One subway system. No two journeys alike. Log your rides and each day becomes a print of your New York.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "Linework", statusBarStyle: "black" },
   // iOS only takes a PNG for the Home Screen icon.

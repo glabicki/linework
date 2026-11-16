@@ -5,12 +5,14 @@ import { Back } from "./RideSheet";
 import { Icon } from "./icons";
 import { label, stationName } from "@/lib/lines";
 import { DOWL, addDays, dateOf, fmtH, monthDay, plural, to12 } from "@/lib/dates";
-import { minutes, removeRide, ridesOn, type Ride } from "@/lib/rides";
+import { NOTE_MAX, minutes, removeRide, ridesOn, setNote, useStore, type Ride } from "@/lib/rides";
+import { captionFor } from "@/lib/notes";
 import type { Nav } from "./App";
 
 // Figma 109:1131 Prints · Day (today) and 114:1534 Prints · Past day
 export default function DayPage({ day, today, rides, nav, onRemoved }: { day: string; today: string; rides: Ride[]; nav: Nav; onRemoved: (r: Ride) => void }) {
   const list = ridesOn(rides, day);
+  const { notes } = useStore();
   const m = minutes(list);
   const d = dateOf(day);
   const est = list.some(r => r.est);
@@ -41,7 +43,14 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
         <p>{ready ? `Your ${DOWL[d.getDay()]} is ready. ${summary}` : `${DOWL[d.getDay()]}${isToday ? " · today" : ""} · ${list.length ? summary : "no rides yet"}`}</p>
       </div>
       <div className="page-body">
-        <div className="day-card"><DayCard day={day} rides={list} /></div>
+        <div className="day-card"><DayCard day={day} rides={list} note={captionFor(day, rides, notes)} /></div>
+        {list.length > 0 && (
+          <label className="day-note">
+            <span>Caption</span>
+            <input value={notes[day] ?? ""} onChange={e => setNote(day, e.target.value)} maxLength={NOTE_MAX} placeholder="What was today?" enterKeyHint="done"
+              onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); }} />
+          </label>
+        )}
         <i className="hr" />
         {list.map(r => (
           <div key={r.id} className="ride-row">

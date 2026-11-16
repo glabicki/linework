@@ -25,10 +25,12 @@ export type Settings = {
   seen?: string[]; // recap cards already closed on Today
 };
 
-type State = { rides: Ride[]; settings: Settings };
+// notes: a day's caption in your own words, by YYYY-MM-DD. Printed under the date.
+type State = { rides: Ride[]; settings: Settings; notes: Record<string, string> };
 
 const KEY = "linework.v1";
-const DEFAULT: State = { rides: [], settings: { lines: [], recaps: { weekly: true, monthly: true, yearly: true }, onboarded: false } };
+const DEFAULT: State = { rides: [], settings: { lines: [], recaps: { weekly: true, monthly: true, yearly: true }, onboarded: false }, notes: {} };
+export const NOTE_MAX = 40;
 
 let state: State = DEFAULT;
 let loaded = false;
@@ -94,6 +96,13 @@ export function removeRide(id: string) {
 export function restoreRide(r: Ride) {
   save({ ...state, rides: [...state.rides, r].sort((a, b) => a.at - b.at) });
 }
+// An empty caption removes it, so the day goes back to its quiet fact.
+export function setNote(day: string, text: string) {
+  const t = text.replace(/\s+/g, " ").trimStart().slice(0, NOTE_MAX);
+  const notes = { ...state.notes };
+  if (t.trim()) notes[day] = t; else delete notes[day];
+  save({ ...state, notes });
+}
 export function setSettings(patch: Partial<Settings>) {
   save({ ...state, settings: { ...state.settings, ...patch } });
 }
@@ -102,14 +111,16 @@ export function eraseAll() {
 }
 
 // Backup file: everything on this phone, as JSON. Restoring merges by ride id.
-export function backupJSON(s: { rides: Ride[]; settings: Settings }) {
-  return JSON.stringify({ app: "linework", version: 1, saved: new Date().toISOString(), rides: s.rides, settings: s.settings }, null, 1);
+export function backupJSON(s: { rides: Ride[]; settings: Settings; notes?: Record<string, string> }) {
+  return JSON.stringify({ app: "linework", version: 1, saved: new Date().toISOString(), rides: s.rides, settings: s.settings, notes: s.notes ?? {} }, null, 1);
 }
-export function parseBackup(text: string): { rides: Ride[]; settings?: Settings } {
+export function parseBackup(text: string): { rides: Ride[]; settings?: Settings; notes: Record<string, string> } {
   const j = JSON.parse(text);
   if (!j || j.app !== "linework" || !Array.isArray(j.rides)) throw new Error("not a Linework backup");
   const ok = (r: Ride) => r && typeof r.id === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.day) && typeof r.line === "string" && typeof r.min === "number";
-  return { rides: j.rides.filter(ok), settings: j.settings };
+  const notes: Record<string, string> = {};
+  if (j.notes && typeof j.notes === "object") for (const [k, v] of Object.entries(j.notes)) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && typeof v === "string" && v.trim()) notes[k] = v.slice(0, NOTE_MAX);
+  return { rides: j.rides.filter(ok), settings: j.settings, notes };
 }
 export function mergeRides(mine: Ride[], theirs: Ride[]) {
   const ids = new Set(mine.map(r => r.id));
@@ -120,7 +131,8 @@ export function restoreBackup(text: string) {
   const rides = mergeRides(state.rides, b.rides);
   const added = rides.length - state.rides.length;
   const lines = state.settings.lines.length ? state.settings.lines : b.settings?.lines ?? [];
-  save({ rides, settings: { ...state.settings, lines, onboarded: true } });
+  // A caption already on this phone wins over the one in the file.
+  save({ ...state, rides, settings: { ...state.settings, lines, onboarded: true }, notes: { ...b.notes, ...state.notes } });
   return added;
 }
 export function markBackedUp(day: string) { setSettings({ backedUp: day }); }
@@ -130,11 +142,11 @@ export const ridesOn = (rides: Ride[], day: string) => rides.filter(r => r.day =
 export const minutes = (rides: Ride[]) => rides.reduce((a, r) => a + r.min, 0);
 export const linesOf = (rides: Ride[]) => [...new Set(rides.map(r => r.line))];
 
-export function toCSV(rides: Ride[]) {
+export function toCSV(rides: Ride[], notes: Record<string, string> = {}) {
   const q = (s?: string) => (s ? `"${s.replace(/"/g, '""')}"` : "");
   const rows = [...rides].sort((a, b) => a.day.localeCompare(b.day) || a.at - b.at)
-    .map(r => [r.day, r.time ?? "", r.line, q(r.from), q(r.to), r.min, r.est ? "about" : "scheduled"].join(","));
-  return ["date,time,line,from,to,minutes,timing", ...rows].join("\n");
+    .map(r => [r.day, r.time ?? "", r.line, q(r.from), q(r.to), r.min, r.est ? "about" : "scheduled", q(notes[r.day])].join(","));
+  return ["date,time,line,from,to,minutes,timing,caption", ...rows].join("\n");
 }
 
 // Sample rides for trying the app: ?demo in the URL fills Oct 1 to today.
@@ -156,5 +168,5 @@ export function seedDemo() {
   // today matches the Figma Today screen
   ([["L", "Bedford Av", "8 Av", "08:41"], ["A", "14 St", "Jay St-MetroTech", "12:10"], ["A", "Jay St-MetroTech", "14 St", "18:15"]] as [Line, string, string, string][])
     .forEach(([line, from, to, time], i) => rides.push({ id: uid(), day: t, line, from, to, time, ...timing(line, from, to), at: Date.parse(t) + i * 3.6e6 }));
-  save({ rides, settings: { ...state.settings, lines: ["L", "A", "G"], onboarded: true } });
+  save({ ...state, rides, settings: { ...state.settings, lines: ["L", "A", "G"], onboarded: true } });
 }
