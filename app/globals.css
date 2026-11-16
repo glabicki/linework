@@ -156,7 +156,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .empty-card { width: 132px; height: 165px; background: var(--print-paper); margin-bottom: 26px; }
 .empty h2 { font-size: 30px; line-height: 32px; font-weight: 700; }
 .empty p { font-size: 15px; line-height: 21px; color: var(--ui-text-soft); max-width: 300px; margin-bottom: 22px; }
-.btn-sm { font-size: 18px; line-height: 21px; padding: 15px 16px; color: #000; }
+.btn-sm { font-size: 16px; line-height: 20px; padding: 12px 16px; }
 
 /* Pushed pages: day, add a ride, make a print (Figma copy pad 8, gap 12) */
 .page-copy { padding: 8px var(--gutter) 28px; display: flex; flex-direction: column; gap: 12px; }
@@ -184,7 +184,11 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .opt div { display: flex; gap: 16px; flex-wrap: wrap; }
 .opt button { font-size: 16px; line-height: 18px; color: var(--ui-text-soft); }
 .opt button[aria-pressed="true"] { color: var(--ui-white); font-weight: 700; }
-.btn { background: var(--ui-white); color: var(--brand-black); font-size: 21px; line-height: 24px; font-weight: 700; padding: 14px 20px; text-align: left; width: 100%; }
+/* Primary button: a white outline, not a white slab. */
+.btn { display: block; border: 1.5px solid var(--ui-white); color: var(--ui-white); font-size: 17px; line-height: 22px; font-weight: 700; padding: 14px 18px; text-align: center; width: 100%; transition: background-color .15s, color .15s; }
+.btn:active { background: var(--ui-white); color: var(--brand-black); }
+.btn.danger { border-color: var(--status-error); color: var(--status-error); }
+.btn.danger:active { background: var(--status-error); color: var(--brand-black); }
 
 /* Sheets: ride editor and other pushed pages (Figma Top bar, row, Footer) */
 .sheet { min-height: calc(100dvh - env(safe-area-inset-top)); display: flex; flex-direction: column; }
@@ -248,7 +252,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .year-grid > .on .print-art { position: absolute; inset: 6% 7%; width: 86%; height: 88%; }
 .year-lead { font-size: 17px; line-height: 23px; font-weight: 700; }
 .year-note { font-size: 15px; line-height: 21px; color: var(--ui-text-soft); }
-.year-btn { background: var(--ui-white); color: #0d0d0d; font-size: 18px; line-height: 21px; font-weight: 700; padding: 15px 0; text-align: center; margin-top: 12px; }
+.year-btn { border: 1.5px solid var(--ui-white); color: var(--ui-white); font-size: 17px; line-height: 21px; font-weight: 700; padding: 15px 0; text-align: center; margin-top: 12px; }
 
 /* Recaps (Figma header 112) */
 .recaps-body { padding: 16px var(--gutter) 24px; display: flex; flex-direction: column; gap: 16px; }
@@ -291,10 +295,24 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 
 /* Account (Figma 115:1414) */
 .kicker { font-size: 11px; line-height: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.008em; color: var(--print-ink-soft); }
-.account .kicker:not(:first-child) { margin-top: 14px; }
 .account .frow { width: 100%; text-align: left; }
 .tab .account { padding-top: 16px; padding-bottom: 24px; }
 .account .frow .txt { flex: 1; }
+.account { gap: 0; }
+.account section + section { margin-top: 30px; }
+.acct-h { font-size: 12px; line-height: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ui-text-soft); padding-bottom: 8px; border-bottom: 2px solid var(--ui-white); }
+.account .frow { gap: 14px; padding: 12px 0; }
+.account .ic { color: var(--ui-text-soft); flex: none; line-height: 0; align-self: flex-start; padding-top: 1px; }
+.account .danger { color: var(--status-error); }
+.account .go { color: var(--ui-text-soft); line-height: 0; flex: none; }
+.account .marks { display: flex; gap: 6px; flex: none; }
+.account .frow.recaps { border-bottom: 0; padding-bottom: 4px; }
+.recap-chips { display: flex; gap: 8px; padding: 0 0 14px 36px; border-bottom: 1px solid var(--ui-line); }
+.chip { position: relative; flex: none; font-size: 14px; line-height: 18px; font-weight: 700; color: var(--ui-white); border: 1px solid #6f6a64; border-radius: 999px; padding: 7px 14px; white-space: nowrap; cursor: pointer; }
+.chip.due { border-color: var(--ui-white); }
+.chip[aria-pressed="false"] { color: var(--ui-text-soft); }
+.chip[aria-pressed="true"] { background: var(--ui-white); border-color: var(--ui-white); color: var(--brand-black); }
+.chip.file input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .year-link { font-size: 17px; line-height: 22px; font-weight: 700; color: var(--ui-white); padding: 10px 0; text-align: center; }
 /* 2026, Drawn. story (Figma section 05). Each page sets its own background and ink. */
@@ -366,7 +384,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .st-acts .fill { background: #fff; color: #000; border-color: #fff; flex: 1.13; text-align: left; padding-left: 20px; }
 .st-fine { font-size: 13px; line-height: 17px; color: var(--ui-text-soft); padding-top: 4px; }
 @media (prefers-reduced-motion: reduce) { .st-page, .st-feed .paper, .st-route path { animation: none; } .st-route path { stroke-dashoffset: 0; } .story { transition: none; } }
-.btn-line { font-size: 21px; line-height: 24px; font-weight: 700; text-align: left; border-top: 2px solid var(--ui-white); padding: 14px 0 12px; }
+.btn-line { font-size: 15px; line-height: 20px; font-weight: 700; color: var(--ui-text-soft); text-align: center; padding: 6px 0; }
 .toggle { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #6f6a64; flex: none; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

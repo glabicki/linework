@@ -6,10 +6,8 @@ import { monthDay, plural, todayKey } from "@/lib/dates";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
 import { TabHead } from "./Prints";
-
-function Toggle({ on, onChange, label: l }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
-  return <button type="button" role="switch" aria-checked={on} aria-label={l} className={`toggle${on ? " on" : ""}`} onClick={() => onChange(!on)} />;
-}
+import { Icon } from "./icons";
+import { LineMark } from "./art";
 
 export default function Account({ rides, settings, nav, toast, due }: { rides: Ride[]; settings: Settings; nav: Nav; toast: (m: string) => void; due?: boolean }) {
   const [erase, setErase] = useState(false);
@@ -52,41 +50,56 @@ export default function Account({ rides, settings, nav, toast, due }: { rides: R
           <p>Removes your rides and prints from this iPhone. {plural(rides.length, "ride")} will be gone.</p>
         </div>
         <footer className="sheet-foot" style={{ paddingBottom: 34 }}>
-          <button type="button" className="btn" onClick={() => { eraseAll(); setErase(false); nav.tab("today"); toast("Erased"); }}>Erase this phone</button>
+          <button type="button" className="btn danger" onClick={() => { eraseAll(); setErase(false); nav.tab("today"); toast("Erased"); }}>Erase this phone</button>
           <button type="button" className="btn-line" onClick={() => setErase(false)}>Cancel</button>
         </footer>
       </div>
     );
   }
 
-  const Row = ({ title, sub, children }: { title: string; sub: string; children?: React.ReactNode }) => (
-    <div className="frow"><span className="txt"><b>{title}</b><span>{sub}</span></span>{children}</div>
+  type IconName = Parameters<typeof Icon>[0]["name"];
+  const Row = ({ icon, title, sub, children, danger }: { icon: IconName; title: React.ReactNode; sub: React.ReactNode; children?: React.ReactNode; danger?: boolean }) => (
+    <>
+      <span className={`ic${danger ? " danger" : ""}`}><Icon name={icon} size={22} /></span>
+      <span className="txt"><b className={danger ? "danger" : undefined}>{title}</b><span>{sub}</span></span>
+      {children}
+    </>
   );
+  const chevron = <span className="go"><Icon name="right" size={18} /></span>;
 
   // Figma 115:1414 Account · Signed out
   return (
     <div className="tab">
       <TabHead title="Account" />
       <div className="sheet-rows account">
-        <p className="kicker">Backup</p><i className="hr" />
-        <Row title="Save a backup" sub={due
-          ? `Time for a backup. ${plural(rides.length, "ride")} live only on this phone${settings.backedUp ? `, last saved ${monthDay(settings.backedUp)}` : ""}.`
-          : settings.backedUp ? `Last saved ${monthDay(settings.backedUp)}. Your rides live only on this phone.` : "Your rides live only on this phone. Save a copy to Files now and then."}>
-          <button type="button" className="val" onClick={saveBackup}>Save</button>
-        </Row>
-        <Row title="Restore a backup" sub="Bring rides back from a saved file">
-          <label className="val file">Restore<input type="file" accept="application/json,.json" onChange={e => { restore(e.target.files?.[0]); e.target.value = ""; }} /></label>
-        </Row>
-        <p className="kicker">Today’s lines</p><i className="hr" />
-        <Row title={lines.length ? lines.map(label).join(", ").replace(/, ([^,]*)$/, " and $1") : "None yet"} sub="Shown first in the grid" />
-        <p className="kicker">Recaps</p><i className="hr" />
-        <Row title="Weekly" sub="Sundays at 7 pm"><Toggle on={r.weekly} onChange={v => setR("weekly", v)} label="Weekly recap" /></Row>
-        <Row title="Monthly" sub="The 1st at 9 am"><Toggle on={r.monthly} onChange={v => setR("monthly", v)} label="Monthly recap" /></Row>
-        <Row title="Yearly" sub="2026, Drawn. on January 1"><Toggle on={r.yearly} onChange={v => setR("yearly", v)} label="Yearly recap" /></Row>
-        <p className="kicker">Your data</p><i className="hr" />
-        <Row title="Export your rides" sub="Every ride as a spreadsheet"><button type="button" className="val" onClick={exportRides}>Export</button></Row>
-        <a className="frow" href="/privacy"><span className="txt"><b>Privacy</b><span>What Linework keeps, in plain words</span></span></a>
-        <button type="button" className="frow" onClick={() => setErase(true)}><span className="txt"><b>Erase this phone</b><span>Removes every ride and print</span></span></button>
+        <section>
+          <h2 className="acct-h">Backup</h2>
+          <div className="frow"><Row icon="save" title="Save a backup" sub={due
+            ? `Time for a backup. ${plural(rides.length, "ride")} live only on this phone${settings.backedUp ? `, last saved ${monthDay(settings.backedUp)}` : ""}.`
+            : settings.backedUp ? `Last saved ${monthDay(settings.backedUp)}. Your rides live only on this phone.` : "Your rides live only on this phone. Save a copy to Files now and then."}>
+            <button type="button" className={`chip${due ? " due" : ""}`} onClick={saveBackup}>Save</button>
+          </Row></div>
+          <div className="frow"><Row icon="restore" title="Restore a backup" sub="Bring rides back from a saved file">
+            <label className="chip file">Restore<input type="file" accept="application/json,.json" onChange={e => { restore(e.target.files?.[0]); e.target.value = ""; }} /></label>
+          </Row></div>
+        </section>
+        <section>
+          <h2 className="acct-h">On this phone</h2>
+          <div className="frow"><Row icon="grid" title="Today’s lines" sub={lines.length ? `${lines.map(label).join(", ").replace(/, ([^,]*)$/, " and $1")}, shown first in the grid` : "None yet. Your most-ridden lines show up first."}>
+            {lines.length > 0 && <span className="marks">{lines.map(l => <LineMark key={l} line={l} lit size={26} />)}</span>}
+          </Row></div>
+          <div className="frow recaps"><Row icon="bell" title="Recaps" sub="Weekly on Sundays at 7 pm, monthly on the 1st, yearly on January 1" /></div>
+          <div className="recap-chips" role="group" aria-label="Recaps">
+            {([["weekly", "Weekly"], ["monthly", "Monthly"], ["yearly", "Yearly"]] as const).map(([k, t]) =>
+              <button key={k} type="button" className="chip" aria-pressed={r[k]} onClick={() => setR(k, !r[k])}>{t}</button>)}
+          </div>
+        </section>
+        <section>
+          <h2 className="acct-h">Your data</h2>
+          <div className="frow"><Row icon="table" title="Export your rides" sub="Every ride as a spreadsheet"><button type="button" className="chip" onClick={exportRides}>Export</button></Row></div>
+          <a className="frow" href="/privacy"><Row icon="lock" title="Privacy" sub="What Linework keeps, in plain words">{chevron}</Row></a>
+          <button type="button" className="frow" onClick={() => setErase(true)}><Row icon="trash" title="Erase this phone" sub="Removes every ride and print" danger>{chevron}</Row></button>
+        </section>
       </div>
     </div>
   );

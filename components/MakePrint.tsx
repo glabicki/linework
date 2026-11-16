@@ -1,8 +1,8 @@
 "use client";
-import { useMemo, useState } from "react";
-import { PAPERS, SIZES, STORY_SIZE, posterSvg, savePoster, storySvg, type Paper } from "@/lib/poster";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { PAPERS, SIZES, posterSvg, savePoster, type Paper } from "@/lib/poster";
 import { dayLong, keyOf, dateOf } from "@/lib/dates";
-import { minutes, ridesOn, type Ride } from "@/lib/rides";
+import { ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
 
@@ -16,6 +16,26 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
   const [caption, setCaption] = useState(true);
   const seed = year ? String(year) : day;
   const svg = useMemo(() => posterSvg({ day: seed, legs: list, rides: list.length, size, paper, caption, title: year ? String(year) : undefined, flat: !!year }), [seed, list, size, paper, caption, year]);
+  const paperRef = useRef<HTMLDivElement>(null);
+  // Every change re-plots the print: the sheet drops in like it's being pinned up, then the pen draws each line.
+  useEffect(() => {
+    const el = paperRef.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    el.animate([
+      { transform: "translateY(-14px) rotate(-3deg)" },
+      { transform: "translateY(3px) rotate(1.2deg)", offset: 0.55 },
+      { transform: "translateY(-1px) rotate(-0.4deg)", offset: 0.8 },
+      { transform: "none" },
+    ], { duration: 700, easing: "ease-out" });
+    const paths = [...el.querySelectorAll("path")];
+    const step = Math.min(140, 1400 / Math.max(1, paths.length));
+    paths.forEach((p, i) => {
+      p.setAttribute("pathLength", "1");
+      p.style.strokeDasharray = "1 1";
+      p.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
+        { duration: 800, delay: 260 + i * step, easing: "cubic-bezier(.55,0,.25,1)", fill: "backwards" });
+    });
+  }, [svg]);
   const stem = year ? `linework-${year}` : `linework-${keyOf(dateOf(day))}`;
 
   // Figma 159:3169 Prints · Make a print
@@ -27,7 +47,7 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
         <p>{year ? `${year}, every line you rode` : dayLong(day)}, sized to frame. Pick a size and paper, then save it.</p>
       </div>
       <div className="page-body">
-        <div className="preview" style={{ aspectRatio: `${size[0]} / ${size[1]}` }} dangerouslySetInnerHTML={{ __html: svg }} />
+        <div ref={paperRef} className="preview" style={{ aspectRatio: `${size[0]} / ${size[1]}` }} dangerouslySetInnerHTML={{ __html: svg }} />
         <div className="opts">
           <div className="opt"><span>Size</span>
             <div>{SIZES.map(s => <button key={s.join()} type="button" aria-pressed={s[0] === size[0]} onClick={() => setSize(s)}>{s[0]} × {s[1]}</button>)}</div></div>
@@ -40,7 +60,6 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
       <footer className="sheet-foot">
         <p className="hint">Save it to your photos, then print it at home or at any print shop. {size[0]} × {size[1]} in.</p>
         <button type="button" className="btn" onClick={() => savePoster(svg, size, `${stem}-${size[0]}x${size[1]}.png`, toast)}>Save poster</button>
-        {!year && <button type="button" className="btn-line" onClick={() => savePoster(storySvg({ day, legs: list, rides: list.length, minutes: minutes(list) }), STORY_SIZE, `${stem}-story.png`, toast)}>Save for Stories</button>}
       </footer>
     </div>
   );
