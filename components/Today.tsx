@@ -5,7 +5,6 @@ import { ORDER, label, lineName, scheduledMin, stationName, type Line } from "@/
 import { usualRide, type Stretch } from "@/lib/usual";
 import { DOWL, MONL, dateOf, plural, to12 } from "@/lib/dates";
 import { minutes, ridesOn, type Ride } from "@/lib/rides";
-import { currentStreak } from "@/lib/recaps";
 import type { Nav } from "./App";
 
 // Not opened from the Home Screen, on a phone-sized screen (Figma 178:4413).
@@ -60,7 +59,6 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
   list.forEach(r => (counts[r.line] = (counts[r.line] ?? 0) + 1));
   const min = minutes(list);
   const shown = useCountUp(min);
-  const streak = currentStreak(rides, day);
   const order = [...mine, ...ORDER.filter(l => !mine.includes(l))];
   const inBrowser = useInBrowser();
   const offline = useOffline();
@@ -103,7 +101,6 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
         <span className="t-minutes" aria-label={`${min}`}>{shown}</span>
         <span className="t-stat-label">minutes<br />underground</span>
       </div>
-      {streak > 1 && <p className="streak">{streak} days in a row on the train{ridesOn(rides, day).length ? "." : ". Ride today to keep it going."}</p>}
 
       {/* Recaps wait under the print, never over it. */}
       {recap}

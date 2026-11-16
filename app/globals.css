@@ -73,7 +73,6 @@ html::-webkit-scrollbar { display: none; }
 .poster-head::before { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 2px; background: var(--ui-white); }
 .poster-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 3px; background: var(--ui-white); }
 .plate { padding: 0 var(--gutter); position: relative; }
-.streak { padding: 10px var(--gutter) 0; font-size: 15px; line-height: 20px; color: var(--ui-text-soft); }
 .minutes { display: flex; align-items: flex-end; gap: 12px; padding: 30px var(--gutter) 0; }
 .picker-head { display: flex; justify-content: space-between; align-items: center; padding: 38px var(--gutter) 14px; }
 .picker-head .count { font-size: 13px; line-height: 16px; font-weight: 700; color: var(--print-ink-soft); }
