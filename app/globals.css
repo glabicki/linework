@@ -210,7 +210,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 
 /* Safari note on Today (Figma 178:4413) */
 .a2hs-note { padding: 2px var(--gutter) 0; }
-.a2hs-note button { display: block; width: 100%; text-align: left; padding: 10px 0; border-top: 1px solid var(--ui-line); border-bottom: 1px solid var(--ui-line); font-size: 13px; line-height: 18px; margin-bottom: 20px; }
+.a2hs-note button, .a2hs-note p { display: block; width: 100%; text-align: left; padding: 10px 0; border-top: 1px solid var(--ui-line); border-bottom: 1px solid var(--ui-line); font-size: 13px; line-height: 18px; margin-bottom: 20px; }
 
 /* Add to Home Screen steps (Figma 178:4307) */
 .frow.step { justify-content: flex-start; gap: 16px; }

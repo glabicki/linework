@@ -24,6 +24,7 @@ export default function Home() {
       <aside className="desk-note">
         <h2>Linework is made for your phone.</h2>
         <p>Open this page on your iPhone, then add it to your Home Screen. You can try it here in the meantime.</p>
+        <p>Free. New York City subway only.</p>
         <p className="credit">© 2026 Ashley Glabicki</p>
       </aside>
     </PhoneFrame>

@@ -19,6 +19,18 @@ function useInBrowser() {
   return v;
 }
 
+// No connection right now. Logging works anyway: rides save on the phone (Figma 175:4363).
+function useOffline() {
+  const [v, setV] = useState(false);
+  useEffect(() => {
+    const set = () => setV(!navigator.onLine);
+    set();
+    addEventListener("online", set); addEventListener("offline", set);
+    return () => { removeEventListener("online", set); removeEventListener("offline", set); };
+  }, []);
+  return v;
+}
+
 // Counts up to a new total instead of jumping, so a logged ride lands with a little weight.
 function useCountUp(to: number) {
   const [v, setV] = useState(to);
@@ -51,6 +63,7 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
   const streak = currentStreak(rides, day);
   const order = [...mine, ...ORDER.filter(l => !mine.includes(l))];
   const inBrowser = useInBrowser();
+  const offline = useOffline();
   const now = new Date();
   const usual = usualRide(rides, day, now.getHours() * 60 + now.getMinutes());
 
@@ -72,7 +85,11 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
         </div>
       </header>
 
-      {inBrowser && (
+      {offline ? (
+        <div className="a2hs-note" role="status">
+          <p>No signal. {list.length ? `${plural(list.length, "ride")} saved on this phone.` : "Rides you log still save on this phone."}</p>
+        </div>
+      ) : inBrowser && (
         <div className="a2hs-note">
           <button type="button" onClick={() => nav.push({ kind: "home" })}>Safari can clear your rides if you don’t visit for a week. <b>Add to Home Screen</b></button>
         </div>
