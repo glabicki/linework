@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 // The app inside an iPhone-sized frame (393 × 852, like the Figma screens).
 export default function PhoneFrame({ children }: { children?: React.ReactNode }) {
   const [scale, setScale] = useState(1);
+  const [src, setSrc] = useState("/?framed");
   useEffect(() => {
+    // ?demo on the outer page reaches the app inside the frame
+    if (new URLSearchParams(location.search).has("demo")) setSrc("/?framed&demo");
     const fit = () => setScale(Math.min(1, (window.innerHeight - 48) / 892, (window.innerWidth - 32) / 433));
     fit();
     window.addEventListener("resize", fit);
@@ -26,7 +29,7 @@ export default function PhoneFrame({ children }: { children?: React.ReactNode })
               </svg>
             </div>
             <div style={{ position: "absolute", top: 11, left: "50%", transform: "translateX(-50%)", width: 124, height: 36, borderRadius: 20, background: "#000", zIndex: 2 }} />
-            <iframe src="/?framed" title="Linework on a phone" style={{ display: "block", width: 393, height: 798, border: 0 }} />
+            <iframe src={src} title="Linework on a phone" style={{ display: "block", width: 393, height: 798, border: 0 }} />
             <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", width: 134, height: 5, borderRadius: 3, background: "#fff", pointerEvents: "none" }} />
           </div>
         </div>

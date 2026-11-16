@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   description: "Every ride, drawn. Log your subway rides and each day becomes a print.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "Linework", statusBarStyle: "black" },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  // iOS only takes a PNG for the Home Screen icon.
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }] },
 };
 
 export const viewport: Viewport = { themeColor: "#000000", width: "device-width", initialScale: 1, viewportFit: "cover" };

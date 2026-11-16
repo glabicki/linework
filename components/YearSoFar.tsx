@@ -24,7 +24,7 @@ export function YearGrid({ rides, y, today, onOpen, paper, height }: { rides: Ri
         const k = addDays(start, i);
         const list = byDay.get(k);
         if (!list) return <span key={k} />;
-        const art = <DayPrint day={k} lines={list.map(r => r.line)} base={300} />;
+        const art = <DayPrint day={k} legs={list} base={300} />;
         return onOpen
           ? <button key={k} type="button" className="on" onClick={() => onOpen(k)} aria-label={dayShort(k)}>{art}</button>
           : <span key={k} className="on">{art}</span>;

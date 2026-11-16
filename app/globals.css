@@ -73,6 +73,13 @@ html::-webkit-scrollbar { display: none; }
 .minutes { display: flex; align-items: flex-end; gap: 12px; padding: 30px var(--gutter) 0; }
 .picker-head { display: flex; justify-content: space-between; align-items: center; padding: 38px var(--gutter) 14px; }
 .picker-head .count { font-size: 13px; line-height: 16px; font-weight: 700; color: var(--print-ink-soft); }
+/* Your usual ride around now: one tap logs it, stations and all */
+.usual { display: flex; align-items: center; gap: 12px; width: calc(100% - 2 * var(--gutter)); min-height: 65px; margin: 0 var(--gutter) 20px; padding: 10px 0; border-top: 1px solid var(--ui-line); border-bottom: 1px solid var(--ui-line); text-align: left; }
+.usual .txt { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.usual .txt b { font-size: 17px; line-height: 22px; color: var(--ui-white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.usual .txt span { font-size: 13px; line-height: 16px; color: var(--print-ink-soft); }
+.usual .go { font-size: 17px; line-height: 22px; font-weight: 700; color: var(--ui-white); }
+.usual:active { opacity: .7; }
 .grid { display: grid; grid-template-columns: repeat(6, 52px); justify-content: space-between; row-gap: 14px; padding: 0 var(--gutter); }
 .cell { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 52px; }
 .cell .mark { position: relative; width: 52px; height: 52px; display: block; }

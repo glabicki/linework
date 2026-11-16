@@ -16,7 +16,8 @@ import Intro from "./Intro";
 import RecapCard from "./RecapCard";
 import { backupDue, dueCards } from "@/lib/recaps";
 import { addRide, removeRide, restoreRide, seedDemo, useStore, type Ride } from "@/lib/rides";
-import { label, type Line } from "@/lib/lines";
+import { label, stationName, type Line } from "@/lib/lines";
+import { usualStretch, type Stretch } from "@/lib/usual";
 import { todayKey } from "@/lib/dates";
 
 type Tab = "today" | "prints" | "recaps" | "account";
@@ -73,11 +74,15 @@ export default function App() {
     tab: (t, a) => { setStack([]); setTab(t); setAt(a); },
   };
 
-  const onLog = (l: Line) => {
+  // A tap logs your usual stretch on that line when you have one, so the print draws just that.
+  const onLog = (l: Line, stretch?: Stretch) => {
     const first = !rides.length;
-    const r = addRide(today, l);
+    const now = new Date();
+    const s = stretch ?? usualStretch(l, rides, today, now.getHours() * 60 + now.getMinutes());
+    const r = addRide(today, l, s ?? {});
     // The first ride also teaches press and hold.
-    toast(first ? `Logged the ${label(l)}. Press and hold a line to add a time.` : `Logged the ${label(l)}`, () => removeRide(r.id));
+    toast(first ? `Logged the ${label(l)}. Press and hold a line to add a time.`
+      : s ? `Logged the ${label(l)}, ${stationName(s.from)} to ${stationName(s.to)}` : `Logged the ${label(l)}`, () => removeRide(r.id));
   };
   const onRemoved = (r: Ride) => toast(`Removed the ${label(r.line)}`, () => restoreRide(r));
 

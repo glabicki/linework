@@ -27,11 +27,12 @@ export default function YearStory({ rides, today, year: y, nav, toast }: { rides
   const first = s.rides.reduce((a, r) => (r.day < a ? r.day : a), end);
   const span = Math.round((dateOf(end).getTime() - dateOf(first).getTime()) / 864e5) + 1;
   const wholeYear = first.slice(5) <= "01-07";
-  // Lines in the order first ridden, so the year print layers the way the year went.
-  const lines = useMemo(() => [...new Set([...s.rides].sort((a, b) => a.day.localeCompare(b.day) || a.at - b.at).map(r => r.line))], [s.rides]);
+  // The year's rides in order, so the year print layers the way the year went.
+  const legs = useMemo(() => [...s.rides].sort((a, b) => a.day.localeCompare(b.day) || a.at - b.at), [s.rides]);
+  const lines = useMemo(() => [...new Set(legs.map(r => r.line))], [legs]);
   const [top, topN] = s.lines[0] ?? ["A", 0];
   const hours = Math.round(s.min / 60);
-  const poster = useMemo(() => posterSvg({ day: String(y), lines, rides: total, size: [18, 24], paper: "white", caption: true, title: String(y), flat: true }), [y, lines, total]);
+  const poster = useMemo(() => posterSvg({ day: String(y), legs, rides: total, size: [18, 24], paper: "white", caption: true, title: String(y), flat: true }), [y, legs, total]);
 
   const pages: Page[] = [{
     key: "year", bg: WHITE, fg: INK, cls: "st-white", body: <>
@@ -133,7 +134,7 @@ export default function YearStory({ rides, today, year: y, nav, toast }: { rides
           <div className="st-edition">
             <i className="ed-rule" />
             <h2>{y},<br />Drawn.</h2>
-            <div className="ed-art"><DayPrint day={String(y)} lines={lines} flat /></div>
+            <div className="ed-art"><DayPrint day={String(y)} legs={legs} flat /></div>
             <div className="ed-stats">
               <span><b>{s.min < 60 ? `${s.min} min` : `${hours} h`}</b>underground</span>
               <span><b>{total}</b>{total === 1 ? "ride" : "rides"}</span>

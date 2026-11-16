@@ -1,20 +1,22 @@
 "use client";
 import { memo } from "react";
-import { frameFor, markBox, handPath, strokesFor, strokeWidth, hash } from "@/lib/art";
+import { frameFor, markBox, handPath, strokesFor, strokeWidth, hash, type Leg } from "@/lib/art";
 import { COLOR, label, paperInk, type Line } from "@/lib/lines";
 import { dayShort, plural } from "@/lib/dates";
 import type { Ride } from "@/lib/rides";
 
-// The drawing for one day: routes in paper inks on white. No chrome, no mark.
+// The drawing for one day: the stretches you rode (whole lines when stations aren't set),
+// in paper inks on white. No chrome, no mark.
 // `flat` is the year print (Figma "every line once, same weight"): inks at 90% instead of multiplied,
 // so a dozen lines sharing track don't pile up into black.
-export const DayPrint = memo(function DayPrint({ day, lines, base = 300, fresh, flat }: { day: string; lines: Line[]; base?: number; fresh?: Line; flat?: boolean }) {
-  const f = frameFor(lines);
+export const DayPrint = memo(function DayPrint({ day, legs, base = 300, fresh, flat }: { day: string; legs: Leg[]; base?: number; fresh?: Line; flat?: boolean }) {
+  const strokes = strokesFor(day, legs);
+  const f = frameFor(strokes);
   const sw = strokeWidth(f.w, base);
   return (
     <svg className="print-art" viewBox={`${f.x.toFixed(0)} ${f.y.toFixed(0)} ${f.w.toFixed(0)} ${f.h.toFixed(0)}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      {strokesFor(day, lines).map(s => (
-        <path key={s.line} d={s.d} className={s.line === fresh ? "draw" : undefined} pathLength={s.line === fresh ? 1 : undefined} transform={`translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})`} fill="none" stroke={s.color}
+      {strokes.map(s => (
+        <path key={s.key} d={s.d} className={s.line === fresh ? "draw" : undefined} pathLength={s.line === fresh ? 1 : undefined} transform={`translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})`} fill="none" stroke={s.color}
           strokeWidth={sw.toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={flat ? { opacity: 0.9 } : { mixBlendMode: "multiply" }} />
       ))}
     </svg>
@@ -35,7 +37,7 @@ export function DayCard({ day, rides, size = "large", onClick }: { day: string; 
   const fresh = last && Date.now() - last.at < 4000 && lines.filter(l => l === last.line).length === 1 ? last.line : undefined;
   const body = (
     <>
-      <DayPrint day={day} lines={lines} fresh={fresh} />
+      <DayPrint day={day} legs={rides} fresh={fresh} />
       {size === "large" && (
         <span className="cap">
           <b>{dayShort(day)}</b>

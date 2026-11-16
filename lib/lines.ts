@@ -1,11 +1,15 @@
 import geoJson from "./data/geo.json";
 import stationsJson from "./data/stations.json";
+import stopsJson from "./data/stops.json";
 
 export type Line = string;
 type Pt = [number, number];
 
 export const GEO = geoJson as unknown as Record<Line, Pt[]>;
 export const STATIONS = stationsJson as unknown as Record<Line, [string, number][]>;
+// Each station's distance along its line's drawn route, in STATIONS order (scripts/station_pos.py).
+// null: the station is on a branch the drawing doesn't follow.
+export const STOPS = stopsJson as unknown as Record<Line, (number | null)[]>;
 
 // Grid order, the way the map legend runs.
 export const ORDER: Line[] = ["1", "2", "3", "4", "5", "6", "7", "A", "C", "E", "B", "D", "F", "M", "N", "Q", "R", "W", "G", "J", "Z", "L", "GS", "FS", "H", "SI"];

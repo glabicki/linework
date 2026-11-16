@@ -6,7 +6,7 @@ import { minutes, ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
 
-// A day's print, or with `year` the year's print: every line ridden that year, once each.
+// A day's print, or with `year` the year's print: every stretch ridden that year, each drawn once.
 export default function MakePrint({ day, year, rides, nav, toast }: { day: string; year?: number; rides: Ride[]; nav: Nav; toast: (m: string) => void }) {
   const list = useMemo(() => year
     ? rides.filter(r => r.day.startsWith(String(year))).sort((a, b) => a.day.localeCompare(b.day) || a.at - b.at)
@@ -15,7 +15,7 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
   const [paper, setPaper] = useState<Paper>("white");
   const [caption, setCaption] = useState(true);
   const seed = year ? String(year) : day;
-  const svg = useMemo(() => posterSvg({ day: seed, lines: list.map(r => r.line), rides: list.length, size, paper, caption, title: year ? String(year) : undefined, flat: !!year }), [seed, list, size, paper, caption, year]);
+  const svg = useMemo(() => posterSvg({ day: seed, legs: list, rides: list.length, size, paper, caption, title: year ? String(year) : undefined, flat: !!year }), [seed, list, size, paper, caption, year]);
   const stem = year ? `linework-${year}` : `linework-${keyOf(dateOf(day))}`;
 
   // Figma 159:3169 Prints · Make a print
@@ -40,7 +40,7 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
       <footer className="sheet-foot">
         <p className="hint">Save it to your photos, then print it at home or at any print shop. {size[0]} × {size[1]} in.</p>
         <button type="button" className="btn" onClick={() => savePoster(svg, size, `${stem}-${size[0]}x${size[1]}.png`, toast)}>Save poster</button>
-        {!year && <button type="button" className="btn-line" onClick={() => savePoster(storySvg({ day, lines: list.map(r => r.line), rides: list.length, minutes: minutes(list) }), STORY_SIZE, `${stem}-story.png`, toast)}>Save for Stories</button>}
+        {!year && <button type="button" className="btn-line" onClick={() => savePoster(storySvg({ day, legs: list, rides: list.length, minutes: minutes(list) }), STORY_SIZE, `${stem}-story.png`, toast)}>Save for Stories</button>}
       </footer>
     </div>
   );

@@ -80,7 +80,7 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
               {[...Array(sheet)].map((_, i) => {
                 const k = addDays(`${y}-01-01`, i), list = ridesOn(year, k);
                 if (k > today) return <span key={k} />;
-                return list.length ? <span key={k} className="on"><DayPrint day={k} lines={list.map(r => r.line)} base={300} /></span> : <span key={k} className="past" />;
+                return list.length ? <span key={k} className="on"><DayPrint day={k} legs={list} base={300} /></span> : <span key={k} className="past" />;
               })}
             </div>
             <p>Day {dayN}. A new sheet. Your {y} replay opens next January.</p>
@@ -92,7 +92,7 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
             <div className="total"><span className="t-hero">{h}</span><span>{h === 1 ? "hour" : "hours"}</span></div>
             <p className="note">
               About {perDayH >= 1 ? `${Math.round(perDayH)} h` : `${Math.round(perDayH * 60)} min`} a day
-              {before.length ? `, and ${Math.abs(h - hb)} h ${h >= hb ? "more" : "less"} than ${MONL[prev.getMonth()]}.` : "."}
+              {!before.length ? "." : h === hb ? `, about the same as ${MONL[prev.getMonth()]}.` : `, and ${Math.abs(h - hb)} h ${h > hb ? "more" : "less"} than ${MONL[prev.getMonth()]}.`}
             </p>
             <div className="bars" role="img" aria-label={`${plural(last.length, "ride")} in ${MONL[lm.getMonth()]}`}>
               {perDay.map((n, i) => <i key={i} className={n === 0 ? "zero" : i === busiest ? "top" : ""} style={{ height: n ? `${(n / maxDay) * 32}px` : "2px" }} />)}

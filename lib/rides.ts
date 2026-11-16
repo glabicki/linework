@@ -137,7 +137,10 @@ export function toCSV(rides: Ride[]) {
 }
 
 // Sample rides for trying the app: ?demo in the URL fills Oct 1 to today.
+// On the live site it only fills an empty phone, so a shared ?demo link can never replace real rides.
 export function seedDemo() {
+  load();
+  if (process.env.NODE_ENV === "production" && state.rides.length) return;
   const t = todayKey();
   const extra = ["G", "6", "Q", "7", "F", "1", "N", "J", "M", "C"];
   const rides: Ride[] = [];

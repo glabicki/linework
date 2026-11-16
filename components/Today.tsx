@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { DayCard, LineMark } from "./art";
-import { ORDER, label, lineName, stationName, type Line } from "@/lib/lines";
+import { ORDER, label, lineName, scheduledMin, stationName, type Line } from "@/lib/lines";
+import { usualRide, type Stretch } from "@/lib/usual";
 import { DOWL, MONL, dateOf, plural, to12 } from "@/lib/dates";
 import { minutes, ridesOn, type Ride } from "@/lib/rides";
 import { currentStreak } from "@/lib/recaps";
@@ -40,7 +41,7 @@ function useCountUp(to: number) {
 }
 
 // Figma 74:953 Today · Poster, 89:1403 First day
-export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: Ride[]; day: string; mine: Line[]; nav: Nav; onLog: (l: Line) => void; recap?: React.ReactNode }) {
+export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: Ride[]; day: string; mine: Line[]; nav: Nav; onLog: (l: Line, s?: Stretch) => void; recap?: React.ReactNode }) {
   const list = ridesOn(rides, day);
   const d = dateOf(day);
   const counts: Record<string, number> = {};
@@ -50,6 +51,8 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
   const streak = currentStreak(rides, day);
   const order = [...mine, ...ORDER.filter(l => !mine.includes(l))];
   const inBrowser = useInBrowser();
+  const now = new Date();
+  const usual = usualRide(rides, day, now.getHours() * 60 + now.getMinutes());
 
   // Tap logs a ride; press and hold opens the ride with time and stations.
   const press = useRef<{ t?: ReturnType<typeof setTimeout>; held?: boolean }>({});
@@ -93,6 +96,17 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
           <h2 className="t-row">Tap a line you rode</h2>
           <span className="count">{plural(list.length, "ride")}</span>
         </div>
+        {usual && (
+          <button type="button" className="usual" onClick={() => { navigator.vibrate?.(8); onLog(usual.line, usual); }}
+            aria-label={`Log your usual ride: ${lineName(usual.line)}, ${stationName(usual.from)} to ${stationName(usual.to)}`}>
+            <LineMark line={usual.line} lit size={34} />
+            <span className="txt">
+              <b>{label(usual.line)}{"\u2002"}{stationName(usual.from)} → {stationName(usual.to)}</b>
+              <span>Your usual around now · {scheduledMin(usual.line, usual.from, usual.to)} min</span>
+            </span>
+            <span className="go">Log</span>
+          </button>
+        )}
         <div className="grid">
           {order.map(l => {
             const n = counts[l] ?? 0;
