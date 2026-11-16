@@ -81,7 +81,7 @@ export default function App() {
     const s = stretch ?? usualStretch(l, rides, today, now.getHours() * 60 + now.getMinutes());
     const r = addRide(today, l, s ?? {});
     // The first ride also teaches press and hold.
-    toast(first ? `Logged the ${label(l)}. Press and hold a line to add a time.`
+    toast(first ? `Logged the ${label(l)}. Hold a line to add a time.`
       : s ? `Logged the ${label(l)}, ${stationName(s.from)} to ${stationName(s.to)}` : `Logged the ${label(l)}`, () => removeRide(r.id));
   };
   const onRemoved = (r: Ride) => toast(`Removed the ${label(r.line)}`, () => restoreRide(r));

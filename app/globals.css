@@ -58,9 +58,13 @@ html::-webkit-scrollbar { display: none; }
 .tabs button[aria-current] { color: var(--ui-white); }
 .tabs .due { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ui-white); margin-left: 3px; vertical-align: super; }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom)); width: calc(min(430px, 100%) - 32px);
-  background: var(--ui-surface); border: 1px solid var(--ui-line); display: flex; justify-content: space-between; align-items: center; padding: 15px 16px; z-index: 6; font-size: 17px; line-height: 22px; }
-.toast button { font-weight: 700; }
+/* Toast: a small pill at the top, sized to its words, clear of buttons and tabs. */
+.toast { position: fixed; left: 50%; transform: translateX(-50%); top: calc(12px + env(safe-area-inset-top)); width: max-content; max-width: calc(min(430px, 100%) - 48px);
+  background: var(--ui-surface); border: 1px solid var(--ui-line); border-radius: 20px; display: flex; align-items: center; gap: 14px; padding: 9px 16px; z-index: 6;
+  font-size: 14px; line-height: 18px; text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,.5); animation: toast-in .28s cubic-bezier(.2,.9,.3,1.2) both; }
+.toast button { font-weight: 700; padding-left: 14px; border-left: 1px solid var(--ui-line); align-self: stretch; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, -10px) scale(.96); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 
 /* Today (Figma 74:953) */
 .today { padding: 0 0 0; }
