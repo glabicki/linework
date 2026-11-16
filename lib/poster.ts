@@ -27,16 +27,24 @@ export function posterSvg(o: { day: string; legs: Leg[]; rides: number; size: [n
     const dots = inkRow(inks.length, W - 2 * m, title!.length * 34 * k * 0.6, sub.length * 25 * k * 0.55, k);
     body += `<rect x="${m}" y="${y}" width="${W - 2 * m}" height="${3.5 * k}" fill="${INK}"/>`;
     body += `<text x="${m}" y="${y + 62 * k}" font-family="${FONT}" font-weight="700" font-size="${34 * k}" fill="${INK}">${title}</text>`;
-    body += `<text x="${m}" y="${y + 100 * k}" font-family="${FONT}" font-size="${25 * k}" fill="${SOFT}">${sub}</text>`;
-    const cy = y + (dots.row === "title" ? 52 : 91) * k, x0 = W - m - dots.width;
-    body += inks.map((c, i) => `<circle cx="${(x0 + dots.r + i * dots.step).toFixed(1)}" cy="${cy.toFixed(1)}" r="${dots.r.toFixed(1)}" fill="${c}"/>`).join("");
+    // On the mini the dots are part of the line count's text, so they follow the words wherever they end.
+    const mini = k > 1, fs = (2 * dots.r) / DOT, inline = mini
+      ? `<tspan dx="${(16 * k).toFixed(1)}" font-size="${fs.toFixed(1)}" letter-spacing="${(dots.step - fs * DOT_ADV).toFixed(1)}">${inks.map(c => `<tspan fill="${c}">●</tspan>`).join("")}</tspan>` : "";
+    body += `<text x="${m}" y="${y + 100 * k}" font-family="${FONT}" font-size="${25 * k}" fill="${SOFT}">${sub}${inline}</text>`;
+    if (!mini) {
+      const cy = y + (dots.row === "title" ? 52 : 91) * k, x0 = W - m - dots.width;
+      body += inks.map((c, i) => `<circle cx="${(x0 + dots.r + i * dots.step).toFixed(1)}" cy="${cy.toFixed(1)}" r="${dots.r.toFixed(1)}" fill="${c}"/>`).join("");
+    }
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${bg}"/>${body}</svg>`;
 }
 
+// The ● glyph: its circle is about this share of the font size across, and its advance this share.
+const DOT = 0.46, DOT_ADV = 0.6;
+
 // Where the ink dots go in the caption: beside the date when they fit, otherwise beside the
 // smaller line count, drawn closer together (and smaller if they must) so they never touch the words.
-// On the mini print they always sit with the line count, sized to its letters.
+// On the mini print they always sit right after the line count, sized to its letters.
 export function inkRow(n: number, width: number, titleW: number, subW: number, k = 1) {
   const mini = k > 1;
   let r = (mini ? 7 : 11) * k, step = r * (mini ? 2.5 : 2.7);

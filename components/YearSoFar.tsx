@@ -56,7 +56,7 @@ export default function YearSoFar({ rides, today, year: asked, nav, toast }: { r
       <p className="year-note">{dayIn} days in, {days - dayIn} to go. Every ride adds a print.</p>
       <button type="button" className="year-btn" onClick={() => {
         setSettings({ recaps: { ...settings.recaps, yearly: true } });
-        toast("It’ll be waiting on Today, January 1.");
+        toast("It’ll be waiting for you January 1.");
         nav.pop();
       }}>Remind me January 1</button>
         </>

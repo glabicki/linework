@@ -53,7 +53,8 @@ function Bands({ y, list }: { y: number; list: Ride[] }) {
       </div>
       {top.length > 0 && (
         <div className="band-keys" aria-hidden="true">
-          {top.map(([l, n]) => <span key={l} style={{ flexGrow: n }}>{n / topN >= 0.05 ? label(l) : ""}</span>)}
+          {/* A label only where its band is wide enough for it, on the narrowest phone (288px of strip). */}
+          {top.map(([l, n]) => <span key={l} style={{ flexGrow: n }}>{(n / topN) * 288 >= label(l).length * 9 + 6 ? label(l) : ""}</span>)}
         </div>
       )}
     </div>

@@ -278,13 +278,17 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .rc-top .bar i { display: block; height: 100%; }
 .rc-top .n { font-size: 13px; line-height: 16px; color: var(--ui-text-soft); width: 64px; text-align: right; flex: none; }
 .rc-bands { margin-top: 6px; }
+/* The year's bands draw in left to right when Recaps opens, with the plotter's stroke (Make a print) */
+.rc-bands .bands, .rc-bands .band-keys { animation: bands-draw 1.8s cubic-bezier(.45, .05, .35, 1) .15s both; }
+@keyframes bands-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) { .rc-bands .bands, .rc-bands .band-keys { animation: none; } }
 .rc-link { align-self: flex-start; margin-top: 14px; font-size: 17px; line-height: 22px; font-weight: 700; color: var(--ui-white); }
 .drawn-row.soon { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--ui-line); }
 .drawn { display: flex; flex-direction: column; gap: 14px; }
 .bands { display: flex; height: 32px; }
 .bands i { display: block; flex: 1 1 0; min-width: 6px; }
 .band-keys { display: flex; margin-top: 6px; font-size: 13px; line-height: 16px; font-weight: 700; color: var(--ui-text); }
-.band-keys span { flex: 1 1 0; min-width: 6px; }
+.band-keys span { flex: 1 1 0; min-width: 6px; white-space: nowrap; overflow: hidden; }
 .bands .empty { border: 1px solid #4a4540; }
 .drawn-row { display: flex; justify-content: space-between; align-items: flex-end; }
 .drawn-row { gap: 16px; }
@@ -384,7 +388,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .st-sheet .inks i, .st-edition .inks i { width: 9px; height: 9px; }
 /* Your line */
 .st-route { width: min(300px, 100%); aspect-ratio: 1; display: block; margin: 37px auto 0; overflow: visible; }
-.st-route path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: plot 1.4s cubic-bezier(.45, .05, .35, 1) .2s forwards; }
+.st-route path { stroke-dasharray: 1 2; stroke-dashoffset: 1; animation: pen-in 1.4s cubic-bezier(.45, .05, .35, 1) .2s both; }
 /* Top five: the bands run edge to edge, sized by rides */
 .st-bleed .st-page { padding: 0; }
 .st-bands { flex: 1; display: flex; flex-direction: column; }
@@ -418,7 +422,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .st-acts button { flex: 1; font-size: 17px; line-height: 24px; font-weight: 700; padding: 16px 8px; border: 1.5px solid currentColor; color: inherit; }
 .st-acts .fill { background: #fff; color: #000; border-color: #fff; flex: 1.13; text-align: left; padding-left: 20px; }
 .st-fine { font-size: 13px; line-height: 17px; color: var(--ui-text-soft); padding-top: 4px; }
-@media (prefers-reduced-motion: reduce) { .st-page, .st-feed .paper, .st-route path { animation: none; } .st-route path { stroke-dashoffset: 0; } .story { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .st-page, .st-feed .paper, .st-route path { animation: none; } .st-route path { stroke-dashoffset: 0; opacity: 1; } .story { transition: none; } }
 .btn-line { font-size: 15px; line-height: 20px; font-weight: 700; color: var(--ui-text-soft); text-align: center; padding: 6px 0; }
 .toggle { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #6f6a64; flex: none; }
 
@@ -464,6 +468,8 @@ button.card:active { transform: scale(0.985); opacity: 0.9; }
 .in-routes { margin-top: auto; padding: 0 var(--gutter) 24px; display: grid; grid-template-columns: repeat(9, 1fr); gap: 12px 10px; }
 @media (min-height: 780px) { .in-routes { grid-template-columns: repeat(7, 1fr); gap: 14px 12px; } }
 .in-routes svg { width: 100%; aspect-ratio: 1; display: block; }
-.in-routes path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: plot .9s cubic-bezier(.45, .05, .35, 1) forwards; }
+/* Routes wait unseen (round caps would otherwise show as dots), then the pen draws them */
+.in-routes path { stroke-dasharray: 1 2; stroke-dashoffset: 1; animation: pen-in .9s cubic-bezier(.45, .05, .35, 1) both; }
+@keyframes pen-in { 0% { stroke-dashoffset: 1; opacity: 0; } 0.1% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
 .in-skip { align-self: flex-end; margin: auto var(--gutter) 0 0; padding-top: 12px; font-size: 13px; line-height: 16px; color: var(--ui-text-soft); }
-@media (prefers-reduced-motion: reduce) { .intro, .in-rule, .in-line span, .in-routes path { animation: none; transition: none; } .in-routes path { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .intro, .in-rule, .in-line span, .in-routes path { animation: none; transition: none; } .in-routes path { stroke-dashoffset: 0; opacity: 1; } }
