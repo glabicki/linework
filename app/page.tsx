@@ -8,8 +8,9 @@ export default function Home() {
   const [desk, setDesk] = useState<boolean | null>(null);
   useEffect(() => {
     const framed = window.self !== window.top || new URLSearchParams(location.search).has("framed");
-    // Anything wider than a phone with a mouse or trackpad gets the frame.
-    const mq = matchMedia("(min-width: 600px) and (hover: hover) and (pointer: fine)");
+    // A computer (mouse or trackpad) at any window size, or a tablet-sized screen, gets the frame.
+    // Phones never do, upright or sideways.
+    const mq = matchMedia("(hover: hover) and (pointer: fine), (min-width: 600px) and (min-height: 600px)");
     const set = () => setDesk(!framed && mq.matches);
     set();
     mq.addEventListener("change", set);
