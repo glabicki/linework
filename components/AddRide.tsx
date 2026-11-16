@@ -19,7 +19,7 @@ export default function AddRide({ day, rides, nav }: { day: string; rides: Ride[
       <div className="grid">
         {ORDER.map(l => (
           <button key={l} type="button" className={`cell${have.has(l) ? " lit" : ""}`} aria-label={`Add a ${lineName(l)} ride`}
-            onClick={() => nav.replace({ kind: "ride", day, line: l })}>
+            onClick={() => nav.replace({ kind: "ride", day, line: l, land: true })}>
             <span className="mark"><LineMark line={l} lit={have.has(l)} /></span>
             <span className="lab">{label(l)}</span>
           </button>

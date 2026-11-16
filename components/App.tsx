@@ -22,14 +22,14 @@ import { todayKey } from "@/lib/dates";
 
 type Tab = "today" | "prints" | "recaps" | "account";
 type Page =
-  | { kind: "ride"; day: string; rideId?: string; line?: Line }
+  | { kind: "ride"; day: string; rideId?: string; line?: Line; land?: boolean }
   | { kind: "day"; day: string }
   | { kind: "make"; day: string; year?: number }
   | { kind: "add"; day: string }
   | { kind: "year"; year?: number }
   | { kind: "story"; year: number }
   | { kind: "home" };
-export type Nav = { push: (p: Page) => void; pop: () => void; replace: (p: Page) => void; tab: (t: Tab, at?: string) => void };
+export type Nav = { push: (p: Page) => void; pop: () => void; replace: (p: Page) => void; land: (day: string) => void; tab: (t: Tab, at?: string) => void };
 
 export default function App() {
   const { rides, settings } = useStore();
@@ -71,6 +71,8 @@ export default function App() {
     push: p => setStack(s => [...s, p]),
     pop: () => setStack(s => s.slice(0, -1)),
     replace: p => setStack(s => [...s.slice(0, -1), p]),
+    // Close this sheet onto the day's page: back to it if it's underneath, otherwise open it in place.
+    land: day => setStack(s => { const rest = s.slice(0, -1), under = rest[rest.length - 1]; return under?.kind === "day" && under.day === day ? rest : [...rest, { kind: "day", day }]; }),
     tab: (t, a) => { setStack([]); setTab(t); setAt(a); },
   };
 
@@ -92,7 +94,7 @@ export default function App() {
   // Opening Account counts as seeing the reminder.
   useEffect(() => { if (dot && tab === "account" && !page) setSettings({ backupNudged: today }); }, [dot, tab, page, today]);
   let view;
-  if (page?.kind === "ride") view = <RideSheet key={page.rideId ?? page.line} day={page.day} rides={rides} ride={rides.find(r => r.id === page.rideId)} line={page.line} nav={nav} onRemoved={onRemoved} />;
+  if (page?.kind === "ride") view = <RideSheet key={page.rideId ?? page.line} day={page.day} rides={rides} ride={rides.find(r => r.id === page.rideId)} line={page.line} land={page.land} nav={nav} onRemoved={onRemoved} />;
   else if (page?.kind === "day") view = <DayPage day={page.day} today={today} rides={rides} nav={nav} onRemoved={onRemoved} />;
   else if (page?.kind === "make") view = <MakePrint day={page.day} year={page.year} rides={rides} nav={nav} toast={toast} />;
   else if (page?.kind === "add") view = <AddRide day={page.day} rides={rides} nav={nav} />;

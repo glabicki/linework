@@ -18,7 +18,7 @@ export function Back({ onClick }: { onClick: () => void }) {
 }
 
 // Figma 114:1120 Ride · Edit and 114:1226 Ride · New
-export default function RideSheet({ day, rides, ride, line, nav, onRemoved }: { day: string; rides: Ride[]; ride?: Ride; line?: Line; nav: Nav; onRemoved: (r: Ride) => void }) {
+export default function RideSheet({ day, rides, ride, line, land, nav, onRemoved }: { day: string; rides: Ride[]; ride?: Ride; line?: Line; land?: boolean; nav: Nav; onRemoved: (r: Ride) => void }) {
   const l = (ride?.line ?? line)!;
   const [time, setTime] = useState(ride?.time ?? "");
   const [from, setFrom] = useState(ride?.from ?? "");
@@ -34,7 +34,8 @@ export default function RideSheet({ day, rides, ride, line, nav, onRemoved }: { 
   const save = () => {
     const patch = { time: time || undefined, from: from || undefined, to: to || undefined };
     if (isNew) addRide(day, l, patch); else updateRide(ride.id, patch);
-    nav.pop();
+    // A ride added from "Add a ride" lands on the day's print, where Add a ride is one tap away.
+    if (isNew && land) nav.land(day); else nav.pop();
   };
 
   const station = (v: string, set: (s: string) => void, name: string) => (

@@ -25,13 +25,19 @@ function Stats({ list }: { list: Ride[] }) {
 // How far back the Prints tab goes: any week, month or year since 2000, rides or not, so old days can be filled in.
 const FLOOR = "2000-01-01";
 
+// Prints closes while a day is open, so it remembers where you were and opens there again when you come back.
+type Spot = { view: "week" | "month" | "year"; wk: string; mo: { y: number; m: number }; yr: number };
+let kept: Spot | null = null;
+
 // Figma 30:206 Week, 32:236 Month, 175:3681 No prints yet
 export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today: string; nav: Nav; at?: string }) {
-  const [view, setView] = useState<"week" | "month" | "year">("week");
-  const [yr, setYr] = useState(dateOf(today).getFullYear());
-  const [wk, setWk] = useState(at ?? weekStart(today));
   const t = dateOf(today);
-  const [mo, setMo] = useState({ y: t.getFullYear(), m: t.getMonth() });
+  const back = at ? null : kept;
+  const [view, setView] = useState<Spot["view"]>(back?.view ?? "week");
+  const [yr, setYr] = useState(back?.yr ?? t.getFullYear());
+  const [wk, setWk] = useState(at ?? back?.wk ?? weekStart(today));
+  const [mo, setMo] = useState(back?.mo ?? { y: t.getFullYear(), m: t.getMonth() });
+  kept = { view, wk, mo, yr };
   const open = (day: string) => nav.push({ kind: "day", day });
   const { notes } = useStore();
 
