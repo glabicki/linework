@@ -74,7 +74,7 @@ export default function Account({ rides, settings, nav, toast, due }: { rides: R
       <TabHead title="Account" />
       <div className="sheet-rows account">
         <section>
-          <h2 className="acct-h">Backup</h2>
+          <h2 className="sec-h">Backup</h2>
           <button type="button" className="frow" onClick={saveBackup}><Row icon="save" title="Save a backup" sub={due
             ? `Time for a backup. ${plural(rides.length, "ride")} live only on this phone${settings.backedUp ? `, last saved ${monthDay(settings.backedUp)}` : ""}.`
             : settings.backedUp ? `Last saved ${monthDay(settings.backedUp)}. Your rides live only on this phone.` : "Your rides live only on this phone. Save a copy to Files now and then."}>
@@ -85,14 +85,14 @@ export default function Account({ rides, settings, nav, toast, due }: { rides: R
           </label>
         </section>
         <section>
-          <h2 className="acct-h">Recaps</h2>
+          <h2 className="sec-h">Recaps</h2>
           <div className="frow head"><Row icon="bell" title="Look back at your rides" sub="Each recap waits for you on Today" /></div>
           {([["weekly", "Weekly", "Sundays at 7 pm"], ["monthly", "Monthly", "The 1st at 9 am"], ["yearly", "Yearly", "Your year, drawn, on January 1"]] as const).map(([k, t, when]) => (
             <div key={k} className="frow sub"><span className="txt"><b>{t}</b><span>{when}</span></span><Toggle on={r[k]} onChange={v => setR(k, v)} label={`${t} recap`} /></div>
           ))}
         </section>
         <section>
-          <h2 className="acct-h">Your data</h2>
+          <h2 className="sec-h">Your data</h2>
           <button type="button" className="frow" onClick={exportRides}><Row icon="table" title="Export your rides" sub="Every ride as a spreadsheet"><span className="act">Export</span></Row></button>
           <a className="frow" href="/privacy"><Row icon="lock" title="Privacy" sub="What Linework keeps, in plain words">{chevron}</Row></a>
           <button type="button" className="frow" onClick={() => setErase(true)}><Row icon="trash" title="Erase this phone" sub="Removes every ride and print" danger>{chevron}</Row></button>

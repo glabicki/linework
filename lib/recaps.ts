@@ -53,6 +53,12 @@ export function backupDue(now: Date, rides: Ride[], settings: Settings) {
   return rides.length >= 10 && stale;
 }
 
+// The dot on the Account tab: once seen, it stays away for two weeks unless they back up.
+export function backupDot(now: Date, rides: Ride[], settings: Settings) {
+  if (!backupDue(now, rides, settings)) return false;
+  return !settings.backupNudged || (now.getTime() - dateOf(settings.backupNudged).getTime()) / 864e5 >= 14;
+}
+
 // Columns for the year-so-far grid: the fewest (biggest prints) that fit.
 export function yearCols(cells: number, width = 345, height = 470, gap = 4) {
   for (let c = 3; c <= 24; c++) {

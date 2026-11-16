@@ -259,11 +259,30 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .year-btn { border: 1.5px solid var(--ui-white); color: var(--ui-white); font-size: 17px; line-height: 21px; font-weight: 700; padding: 15px 0; text-align: center; margin-top: 12px; }
 
 /* Recaps (Figma header 112) */
-.recaps-body { padding: 16px var(--gutter) 24px; display: flex; flex-direction: column; gap: 16px; }
+.recaps-body { padding: 16px var(--gutter) 32px; display: flex; flex-direction: column; gap: 40px; }
+/* Section heading, shared with Account */
+.sec-h { font-size: 12px; line-height: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ui-text-soft); padding-bottom: 8px; border-bottom: 2px solid var(--ui-white); margin-bottom: 10px; }
+.rc-sec { display: flex; flex-direction: column; gap: 8px; }
+.rc-sec .note { font-size: 13px; line-height: 17px; color: var(--ui-text-soft); }
+.rc-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 14px 0 10px; border-top: 1px solid var(--ui-line); }
+.rc-stats div { padding-top: 10px; display: flex; flex-direction: column; gap: 2px; }
+.rc-stats dd { font-size: 28px; line-height: 32px; font-weight: 700; letter-spacing: -0.01em; color: var(--ui-text); }
+.sec-h + .rc-stats { border-top: 0; margin-top: 4px; }
+.rc-stats dt { font-size: 12px; line-height: 16px; color: var(--ui-text-soft); }
+.rc-sec .busiest { font-size: 13px; line-height: 17px; color: var(--ui-text-soft); margin-top: 8px; }
+.rc-sec .sub-h { font-size: 12px; line-height: 16px; font-weight: 700; color: var(--ui-text-soft); margin-top: 18px; }
+.rc-top li { display: flex; align-items: center; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--ui-line); }
+.rc-top b { font-size: 17px; line-height: 22px; width: 28px; flex: none; }
+.rc-top .bar { flex: 1; height: 4px; background: var(--ui-line); border-radius: 2px; overflow: hidden; }
+.rc-top .bar i { display: block; height: 100%; }
+.rc-top .n { font-size: 13px; line-height: 16px; color: var(--ui-text-soft); width: 64px; text-align: right; flex: none; }
+.rc-bands { margin-top: 6px; }
+.rc-link { align-self: flex-start; margin-top: 14px; font-size: 17px; line-height: 22px; font-weight: 700; color: var(--ui-white); }
+.drawn-row.soon { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--ui-line); }
 .drawn { display: flex; flex-direction: column; gap: 14px; }
-.bands { display: flex; gap: 2px; height: 110px; }
+.bands { display: flex; height: 96px; }
 .bands i { display: block; flex: 1 1 0; min-width: 6px; }
-.band-keys { display: flex; gap: 2px; margin-top: -8px; font-size: 13px; line-height: 16px; font-weight: 700; color: var(--ui-text); }
+.band-keys { display: flex; margin-top: 6px; font-size: 13px; line-height: 16px; font-weight: 700; color: var(--ui-text); }
 .band-keys span { flex: 1 1 0; min-width: 6px; }
 .bands .empty { border: 1px solid #4a4540; }
 .drawn-row { display: flex; justify-content: space-between; align-items: flex-end; }
@@ -304,7 +323,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .account .frow .txt { flex: 1; }
 .account { gap: 0; }
 .account section + section { margin-top: 36px; }
-.acct-h { font-size: 12px; line-height: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ui-text-soft); padding-bottom: 8px; border-bottom: 2px solid var(--ui-white); }
+.account .sec-h { margin-bottom: 0; }
 .account .frow { gap: 16px; padding: 16px 0; min-height: 72px; align-items: center; }
 .account .frow .txt { gap: 4px; }
 .account .frow .txt span { line-height: 17px; }

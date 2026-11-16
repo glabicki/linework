@@ -21,6 +21,7 @@ export type Settings = {
   recaps: { weekly: boolean; monthly: boolean; yearly: boolean };
   onboarded: boolean;
   backedUp?: string; // day of the last saved backup file
+  backupNudged?: string; // day the Account tab was opened while a backup was due
   seen?: string[]; // recap cards already closed on Today
 };
 

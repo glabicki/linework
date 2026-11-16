@@ -14,8 +14,8 @@ import YearStory from "./YearStory";
 import HomeScreen from "./HomeScreen";
 import Intro from "./Intro";
 import RecapCard from "./RecapCard";
-import { backupDue, dueCards } from "@/lib/recaps";
-import { addRide, removeRide, restoreRide, seedDemo, useStore, type Ride } from "@/lib/rides";
+import { backupDot, backupDue, dueCards } from "@/lib/recaps";
+import { addRide, removeRide, restoreRide, seedDemo, setSettings, useStore, type Ride } from "@/lib/rides";
 import { label, stationName, type Line } from "@/lib/lines";
 import { usualStretch, type Stretch } from "@/lib/usual";
 import { todayKey } from "@/lib/dates";
@@ -88,6 +88,9 @@ export default function App() {
 
   const page = stack[stack.length - 1];
   const due = backupDue(new Date(), rides, settings);
+  const dot = backupDot(new Date(), rides, settings);
+  // Opening Account counts as seeing the reminder.
+  useEffect(() => { if (dot && tab === "account" && !page) setSettings({ backupNudged: today }); }, [dot, tab, page, today]);
   let view;
   if (page?.kind === "ride") view = <RideSheet key={page.rideId ?? page.line} day={page.day} rides={rides} ride={rides.find(r => r.id === page.rideId)} line={page.line} nav={nav} onRemoved={onRemoved} />;
   else if (page?.kind === "day") view = <DayPage day={page.day} today={today} rides={rides} nav={nav} onRemoved={onRemoved} />;
@@ -121,8 +124,8 @@ export default function App() {
         <nav className="tabs" aria-label="Sections">
           {(["today", "prints", "recaps", "account"] as Tab[]).map(t => (
             <button key={t} type="button" aria-current={tab === t ? "page" : undefined} onClick={() => nav.tab(t)}
-              aria-label={t === "account" && due ? "Account, backup due" : undefined}>
-              {t[0].toUpperCase() + t.slice(1)}{t === "account" && due && <i className="due" aria-hidden="true" />}
+              aria-label={t === "account" && dot ? "Account, backup due" : undefined}>
+              {t[0].toUpperCase() + t.slice(1)}{t === "account" && dot && <i className="due" aria-hidden="true" />}
             </button>
           ))}
         </nav>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dueCards, yearCols, backupDue } from "@/lib/recaps";
+import { dueCards, yearCols, backupDue, backupDot } from "@/lib/recaps";
 import type { Ride, Settings } from "@/lib/rides";
 
 const on = { weekly: true, monthly: true, yearly: true };
@@ -42,6 +42,12 @@ describe("backup nudge", () => {
     expect(backupDue(at("2026-11-20"), many, { ...base, backedUp: "2026-11-10" })).toBe(false);
     expect(backupDue(at("2026-11-20"), many.slice(0, 9), { ...base, backedUp: undefined })).toBe(false);
     expect(dueCards(at("2026-11-20"), many, { ...base, backedUp: undefined }).map(c => c.id).join()).not.toContain("backup");
+  });
+  it("drops the Account dot for two weeks once seen", () => {
+    const none = { ...base, backedUp: undefined };
+    expect(backupDot(at("2026-11-20"), many, none)).toBe(true);
+    expect(backupDot(at("2026-11-20"), many, { ...none, backupNudged: "2026-11-15" })).toBe(false);
+    expect(backupDot(at("2026-11-29"), many, { ...none, backupNudged: "2026-11-15" })).toBe(true);
   });
 });
 
