@@ -230,7 +230,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 
 /* Onboarding (Figma 35:312, 35:364, 36:394) */
 .ob-hero { height: 400px; position: relative; }
-.ob-hero > div { position: absolute; left: 121px; top: 120px; width: 150px; transform-origin: 50% 260%; box-shadow: -1px 0 0 rgba(0, 0, 0, .18), 1px 0 0 rgba(0, 0, 0, .18); }
+.ob-hero > div { position: absolute; left: 121px; top: 120px; width: 150px; transform-origin: 50% 260%; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
 .ob-hero > div:nth-child(1) { transform: translateY(16px) rotate(-12deg); } .ob-hero > div:nth-child(2) { z-index: 1; } .ob-hero > div:nth-child(3) { transform: translateY(16px) rotate(12deg); }
 .ob-foot { gap: 12px; }
 .ob-foot.sticky { position: sticky; bottom: 0; background: var(--ui-screen); }
