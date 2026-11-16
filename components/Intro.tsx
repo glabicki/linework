@@ -5,8 +5,8 @@ import { COLOR, ORDER } from "@/lib/lines";
 
 // Figma 83:1333 → 83:1362 → 83:1391 → 75:1332: the headline rises, every route draws,
 // the poster holds, then it's pulled up into the machine and Today is underneath.
-// About 5 s: the headline, then every route plotted, then a beat on the finished poster.
-const HOLD = 5400, LIFT = 700;
+// About 6 s: the headline, then the routes plotted one after another, then a beat on the finished poster.
+const HOLD = 6200, LIFT = 700;
 const HEAD = [["Every Ride/", 0.4], ["Uptown &", 0.6], ["Downtown/", 0.8], ["Local &", 1.35], ["Express/", 1.55], ["Drawn.", 1.75]] as const;
 
 export default function Intro({ onDone }: { onDone: () => void }) {
@@ -32,7 +32,7 @@ export default function Intro({ onDone }: { onDone: () => void }) {
           const b = markBox(l, 1.24);
           return (
             <svg key={l} viewBox={`${b.x.toFixed(0)} ${b.y.toFixed(0)} ${b.s.toFixed(0)} ${b.s.toFixed(0)}`}>
-              <path d={handPath(l, l + "dot")} pathLength={1} fill="none" stroke={COLOR[l]} strokeWidth={(b.s * 0.1).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={{ animationDelay: `${2.1 + i * 0.06}s` }} />
+              <path d={handPath(l, l + "dot")} pathLength={1} fill="none" stroke={COLOR[l]} strokeWidth={(b.s * 0.1).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={{ animationDelay: `${(2 + i * 0.12).toFixed(2)}s` }} />
             </svg>
           );
         })}

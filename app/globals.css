@@ -469,7 +469,7 @@ button.card:active { transform: scale(0.985); opacity: 0.9; }
 @media (min-height: 780px) { .in-routes { grid-template-columns: repeat(7, 1fr); gap: 14px 12px; } }
 .in-routes svg { width: 100%; aspect-ratio: 1; display: block; }
 /* Routes wait unseen (round caps would otherwise show as dots), then the pen draws them */
-.in-routes path { stroke-dasharray: 1 2; stroke-dashoffset: 1; animation: pen-in .9s cubic-bezier(.45, .05, .35, 1) both; }
+.in-routes path { stroke-dasharray: 1 2; stroke-dashoffset: 1; animation: pen-in .7s cubic-bezier(.45, .05, .35, 1) both; }
 @keyframes pen-in { 0% { stroke-dashoffset: 1; opacity: 0; } 0.1% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
 .in-skip { align-self: flex-end; margin: auto var(--gutter) 0 0; padding-top: 12px; font-size: 13px; line-height: 16px; color: var(--ui-text-soft); }
 @media (prefers-reduced-motion: reduce) { .intro, .in-rule, .in-line span, .in-routes path { animation: none; transition: none; } .in-routes path { stroke-dashoffset: 0; opacity: 1; } }
