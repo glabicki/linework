@@ -16,7 +16,7 @@ export function YearGrid({ rides, y, today, onMonth, paper }: { rides: Ride[]; y
         const days = new Date(y, m + 1, 0).getDate();
         const cells = [...Array(days)].map((_, i) => {
           const k = keyOf(new Date(y, m, i + 1)), list = byDay.get(k);
-          return list ? <span key={k} className="on"><DayPrint day={k} legs={list} base={300} /></span> : <span key={k} className={k > today ? "later" : undefined} />;
+          return list ? <span key={k} className="on" data-day={k}><DayPrint day={k} legs={list} base={300} /></span> : <span key={k} className={k > today ? "later" : undefined} data-day={k} />;
         });
         const body = <><b>{name.slice(0, 1)}</b><span className="days">{cells}</span></>;
         return onMonth

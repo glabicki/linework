@@ -30,11 +30,11 @@ export function InkDots({ lines }: { lines: Line[] }) {
 }
 
 // White card: the print plus its date and ride count.
-export function DayCard({ day, rides, size = "large", onClick }: { day: string; rides: Ride[]; size?: "large" | "plain"; onClick?: () => void }) {
+export function DayCard({ day, rides, size = "large", onClick, flip }: { day: string; rides: Ride[]; size?: "large" | "plain"; onClick?: () => void; flip?: boolean }) {
   const lines = rides.map(r => r.line);
-  // A line ridden for the first time today, logged seconds ago, gets drawn in.
+  // The line logged seconds ago gets plotted in again.
   const last = rides.reduce<Ride | undefined>((a, r) => (!a || r.at > a.at ? r : a), undefined);
-  const fresh = last && Date.now() - last.at < 4000 && lines.filter(l => l === last.line).length === 1 ? last.line : undefined;
+  const fresh = last && Date.now() - last.at < 4000 ? last.line : undefined;
   const body = (
     <>
       <DayPrint day={day} legs={rides} fresh={fresh} />
@@ -48,7 +48,8 @@ export function DayCard({ day, rides, size = "large", onClick }: { day: string; 
   );
   const cls = `card card-${size}`;
   const aria = `${dayShort(day)}, ${rides.length ? plural(rides.length, "ride") : "no rides"}`;
-  return onClick ? <button type="button" className={cls} onClick={onClick} aria-label={aria}>{body}</button> : <div className={cls} role="img" aria-label={aria}>{body}</div>;
+  const tag = flip ? { "data-day": day } : {};
+  return onClick ? <button type="button" className={cls} onClick={onClick} aria-label={aria} {...tag}>{body}</button> : <div className={cls} role="img" aria-label={aria} {...tag}>{body}</div>;
 }
 
 // A line's route as a small mark. Muted until ridden.
@@ -57,7 +58,7 @@ export const LineMark = memo(function LineMark({ line, lit, size = 52 }: { line:
   const b = markBox(line, 1.24);
   return (
     <svg width={size} height={size} viewBox={`${b.x.toFixed(0)} ${b.y.toFixed(0)} ${b.s.toFixed(0)} ${b.s.toFixed(0)}`} aria-hidden="true">
-      <path d={handPath(line, line + "dot")} fill="none" stroke={lit ? COLOR[line] : "#34302C"} strokeWidth={(b.s * 0.096).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={handPath(line, line + "dot")} pathLength={1} fill="none" stroke={lit ? COLOR[line] : "#34302C"} strokeWidth={(b.s * 0.096).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 });

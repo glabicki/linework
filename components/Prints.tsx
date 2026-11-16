@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { DayCard } from "./art";
 import { YearGrid } from "./YearSoFar";
 import { Icon } from "./icons";
@@ -32,6 +32,35 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
   const first = rides.length ? rides.reduce((a, r) => (r.day < a ? r.day : a), today) : today;
   const open = (day: string) => nav.push({ kind: "day", day });
 
+  // Switching Week, Month and Year: each day's print glides from where it was to where it lands,
+  // so the views read as one sheet zooming out and in. Days new to the view fade in.
+  const sheet = useRef<HTMLDivElement>(null);
+  const snap = useRef<Map<string, DOMRect> | null>(null);
+  const go = (v: typeof view) => {
+    if (v === view) return;
+    const m = new Map<string, DOMRect>();
+    sheet.current?.querySelectorAll<HTMLElement>("[data-day]").forEach(el => { const r = el.getBoundingClientRect(); if (r.width) m.set(el.dataset.day!, r); });
+    snap.current = m;
+    setView(v);
+  };
+  useLayoutEffect(() => {
+    const old = snap.current;
+    snap.current = null;
+    if (!old || !sheet.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    sheet.current.querySelectorAll<HTMLElement>("[data-day]").forEach(el => {
+      const r = el.getBoundingClientRect(), o = old.get(el.dataset.day!);
+      if (!r.width) return;
+      if (o) {
+        el.animate([
+          { transformOrigin: "0 0", transform: `translate(${o.left - r.left}px, ${o.top - r.top}px) scale(${o.width / r.width}, ${o.height / r.height})` },
+          { transformOrigin: "0 0", transform: "none" },
+        ], { duration: 520, easing: "cubic-bezier(.2, .8, .2, 1)" });
+      } else {
+        el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 280, delay: 220, fill: "backwards" });
+      }
+    });
+  }, [view]);
+
   if (!rides.length) {
     return (
       <div className="tab">
@@ -61,7 +90,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
           const list = ridesOn(rides, k);
           return (
             <div key={k} className="wday">
-              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : k > today ? <span className="blank later" /> : <button type="button" className="blank" aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
+              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} flip /> : k > today ? <span className="blank later" data-day={k} /> : <button type="button" className="blank" data-day={k} aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
               <div className="wlab"><b>{dayShort(k)}</b><span>{k > today ? "" : list.length ? plural(list.length, "ride") : "Off"}</span></div>
             </div>
           );
@@ -74,7 +103,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
     inRange = rides.filter(r => r.day.startsWith(String(yr)));
     prevOk = `${yr}-01-01` > first; nextOk = yr < t.getFullYear();
     step = n => setYr(yr + n);
-    body = <YearGrid rides={rides} y={yr} today={today} onMonth={m => { setMo({ y: yr, m }); setView("month"); }} />;
+    body = <YearGrid rides={rides} y={yr} today={today} onMonth={m => { setMo({ y: yr, m }); go("month"); }} />;
   } else {
     const days = new Date(mo.y, mo.m + 1, 0).getDate();
     const lead = (new Date(mo.y, mo.m, 1).getDay() + 6) % 7;
@@ -92,7 +121,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
           const list = ridesOn(rides, k);
           return (
             <div key={k} className="mday">
-              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} /> : k > today ? <span className="blank later" /> : <button type="button" className="blank" aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
+              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} flip /> : k > today ? <span className="blank later" data-day={k} /> : <button type="button" className="blank" data-day={k} aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
               <span>{dateOf(k).getDate()}</span>
             </div>
           );
@@ -106,9 +135,9 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
       <TabHead title="Prints" />
       <div className="prints-body">
         <div className="seg" role="tablist">
-          <button type="button" role="tab" aria-selected={view === "week"} onClick={() => setView("week")}>Week</button>
-          <button type="button" role="tab" aria-selected={view === "month"} onClick={() => setView("month")}>Month</button>
-          <button type="button" role="tab" aria-selected={view === "year"} onClick={() => setView("year")}>Year</button>
+          <button type="button" role="tab" aria-selected={view === "week"} onClick={() => go("week")}>Week</button>
+          <button type="button" role="tab" aria-selected={view === "month"} onClick={() => go("month")}>Month</button>
+          <button type="button" role="tab" aria-selected={view === "year"} onClick={() => go("year")}>Year</button>
         </div>
         <div className="range">
           <button type="button" onClick={() => step(-1)} disabled={!prevOk} aria-label={`Previous ${view}`}><Icon name="left" /></button>
@@ -116,7 +145,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
           <button type="button" onClick={() => step(1)} disabled={!nextOk} aria-label={`Next ${view}`}><Icon name="right" /></button>
         </div>
         <Stats list={inRange} />
-        {body}
+        <div ref={sheet}>{body}</div>
       </div>
     </div>
   );

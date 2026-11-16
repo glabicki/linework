@@ -66,13 +66,20 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
   const usual = usualRide(rides, day, now.getHours() * 60 + now.getMinutes());
 
   // Tap logs a ride; press and hold opens the ride with time and stations.
+  const [plotted, setPlotted] = useState<{ line?: Line; n: number }>({ n: 0 });
   const press = useRef<{ t?: ReturnType<typeof setTimeout>; held?: boolean }>({});
   const down = (l: Line) => {
     press.current.held = false;
     press.current.t = setTimeout(() => { press.current.held = true; navigator.vibrate?.(10); nav.push({ kind: "ride", day, line: l }); }, 450);
   };
   const up = () => clearTimeout(press.current.t);
-  const tap = (l: Line) => { if (press.current.held) { press.current.held = false; return; } navigator.vibrate?.(8); onLog(l); };
+  const tap = (l: Line) => {
+    if (press.current.held) { press.current.held = false; return; }
+    navigator.vibrate?.(8);
+    // The pen redraws the line's mark, the same stroke that lands in the print above.
+    setPlotted(p => ({ line: l, n: p.n + 1 }));
+    onLog(l);
+  };
 
   return (
     <div className="today">
@@ -129,7 +136,7 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
                 onPointerDown={() => down(l)} onPointerUp={up} onPointerLeave={up} onPointerCancel={up}
                 onContextMenu={e => e.preventDefault()} onClick={() => tap(l)}
                 aria-label={`Log a ride on ${lineName(l)}${n ? `, ridden ${n === 1 ? "once" : n + " times"} today` : ""}`}>
-                <span className="mark"><LineMark line={l} lit={!!n} />{n > 1 && <b className="x">{n}</b>}</span>
+                <span key={plotted.line === l ? plotted.n : 0} className={`mark${plotted.line === l ? " plot" : ""}`}><LineMark line={l} lit={!!n} />{n > 1 && <b className="x">{n}</b>}</span>
                 <span className="lab">{label(l)}</span>
               </button>
             );

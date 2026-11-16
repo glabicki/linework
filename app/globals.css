@@ -90,6 +90,11 @@ html::-webkit-scrollbar { display: none; }
 .cell.lit .lab { color: var(--ui-white); }
 .cell .x { position: absolute; top: -3px; left: 36px; background: var(--ui-white); color: #000; font-size: 10px; line-height: 16px; font-weight: 700; min-width: 19px; height: 19px; padding: 1px 4px; text-align: center; }
 .cell:active .mark { opacity: .7; }
+/* Tap to log: the mark pops and its route is redrawn by the pen */
+.cell .mark.plot { animation: cell-pop .38s cubic-bezier(.3, 1.6, .5, 1); }
+.cell .mark.plot path { stroke-dasharray: 1; animation: plot .7s cubic-bezier(.45, .05, .35, 1) both; }
+@keyframes cell-pop { 40% { transform: scale(.88); } }
+@media (prefers-reduced-motion: reduce) { .cell .mark.plot, .cell .mark.plot path { animation: none; } }
 .fine-wrap { padding: 34px var(--gutter) 30px; display: flex; flex-direction: column; gap: 12px; }
 .fine-wrap::before { content: ""; height: 2px; background: var(--ui-white); }
 .fine { font-size: 12.5px; line-height: 18px; color: var(--ui-text-soft); }
