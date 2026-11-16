@@ -1,33 +1,27 @@
 "use client";
 import { DayPrint } from "./art";
-import { addDays, dateOf, dayShort, keyOf, plural, weekStart } from "@/lib/dates";
-import { yearCols } from "@/lib/recaps";
+import { MONL, dateOf, keyOf, plural } from "@/lib/dates";
 import { setSettings, useStore, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
 
-// Every day of a year from the first ride on, a print where you rode. Used here and in Prints · Year.
-// `paper` draws the prints straight onto a white sheet, with no cells.
-export function YearGrid({ rides, y, today, onOpen, paper, height }: { rides: Ride[]; y: number; today: string; onOpen?: (day: string) => void; paper?: boolean; height?: number }) {
-  const done = `${y}-12-31` < today;
-  const t = dateOf(done ? `${y}-12-31` : today);
-  const year = rides.filter(r => r.day.startsWith(String(y)));
-  const first = year.reduce((a, r) => (r.day < a ? r.day : a), keyOf(t));
+// A whole year as twelve rows, one per month, a cell per day. Always the same size, so Year
+// is always the smallest view. Used here, in Prints · Year and in the year story.
+// `paper` draws the prints straight onto a white sheet, with no cells. `onMonth` makes each row a button.
+export function YearGrid({ rides, y, today, onMonth, paper }: { rides: Ride[]; y: number; today: string; onMonth?: (m: number) => void; paper?: boolean; height?: number }) {
   const byDay = new Map<string, Ride[]>();
-  year.forEach(r => byDay.set(r.day, [...(byDay.get(r.day) ?? []), r]));
-  const start = weekStart(first) < `${y}-01-01` ? `${y}-01-01` : weekStart(first);
-  const cells = Math.round((t.getTime() - dateOf(start).getTime()) / 864e5) + 1;
-  // Fewest columns (biggest prints) that still fit the screen; a week per row while it can.
-  const cols = yearCols(cells, 345, height, paper ? 3 : 4);
+  rides.forEach(r => { if (r.day.startsWith(String(y))) byDay.set(r.day, [...(byDay.get(r.day) ?? []), r]); });
   return (
-    <div className={`year-grid${cols >= 8 ? " small" : ""}${paper ? " paper" : ""}`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="img" aria-label={`${plural(byDay.size, "day")} with rides out of ${plural(cells, "day")}`}>
-      {[...Array(cells)].map((_, i) => {
-        const k = addDays(start, i);
-        const list = byDay.get(k);
-        if (!list) return <span key={k} />;
-        const art = <DayPrint day={k} legs={list} base={300} />;
-        return onOpen
-          ? <button key={k} type="button" className="on" onClick={() => onOpen(k)} aria-label={dayShort(k)}>{art}</button>
-          : <span key={k} className="on">{art}</span>;
+    <div className={`year-grid${paper ? " paper" : ""}`} role="img" aria-label={`${plural(byDay.size, "day")} with rides in ${y}`}>
+      {MONL.map((name, m) => {
+        const days = new Date(y, m + 1, 0).getDate();
+        const cells = [...Array(days)].map((_, i) => {
+          const k = keyOf(new Date(y, m, i + 1)), list = byDay.get(k);
+          return list ? <span key={k} className="on"><DayPrint day={k} legs={list} base={300} /></span> : <span key={k} className={k > today ? "later" : undefined} />;
+        });
+        const body = <><b>{name.slice(0, 1)}</b><span className="days">{cells}</span></>;
+        return onMonth
+          ? <button key={m} type="button" className="ym" onClick={() => onMonth(m)} aria-label={`Open ${name}`}>{body}</button>
+          : <div key={m} className="ym">{body}</div>;
       })}
     </div>
   );

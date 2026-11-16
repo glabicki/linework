@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dueCards, yearCols, backupDue, backupDot } from "@/lib/recaps";
+import { dueCards, backupDue, backupDot } from "@/lib/recaps";
 import type { Ride, Settings } from "@/lib/rides";
 
 const on = { weekly: true, monthly: true, yearly: true };
@@ -51,14 +51,6 @@ describe("backup nudge", () => {
   });
 });
 
-describe("year grid", () => {
-  it("uses big prints for a short year and small ones for a full one", () => {
-    expect(yearCols(7)).toBe(3);
-    expect(yearCols(46)).toBe(7);
-    expect(yearCols(365)).toBeGreaterThanOrEqual(15);
-    expect(yearCols(366)).toBeLessThanOrEqual(20);
-  });
-});
 
 import { weekRange } from "@/lib/recaps";
 

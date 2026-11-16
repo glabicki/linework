@@ -250,10 +250,6 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .year-close { position: absolute; top: 0; right: var(--gutter); font-size: 26px; line-height: 30px; font-weight: 700; color: var(--ui-white); width: 44px; height: 44px; text-align: right; }
 .year-page .kicker { font-size: 13px; line-height: 16px; color: var(--ui-text-soft); }
 .year-page h1 { font-size: 64px; line-height: 58px; letter-spacing: -0.015em; font-weight: 700; margin-bottom: 16px; }
-.year-grid { display: grid; gap: 4px; margin-bottom: 16px; }
-.year-grid > span, .year-grid > button { aspect-ratio: 108 / 132; position: relative; display: block; background: #161412; border: 1px solid #24211e; }
-.year-grid > .on { background: var(--print-paper); border-color: var(--print-paper); }
-.year-grid > .on .print-art { position: absolute; inset: 6% 7%; width: 86%; height: 88%; }
 .year-lead { font-size: 17px; line-height: 23px; font-weight: 700; }
 .year-note { font-size: 15px; line-height: 21px; color: var(--ui-text-soft); }
 .year-btn { border: 1.5px solid var(--ui-white); color: var(--ui-white); font-size: 17px; line-height: 21px; font-weight: 700; padding: 15px 0; text-align: center; margin-top: 12px; }
@@ -358,6 +354,19 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .st-end { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .st-end .st-h { line-height: 52px; }
 .st-page .year-grid { margin-bottom: 0; }
+/* Year: twelve month rows, a cell per day */
+.year-grid { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+.ym { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; }
+.ym > b { width: 10px; flex: none; font-size: 10px; line-height: 12px; font-weight: 700; color: var(--ui-text-soft); }
+.ym .days { flex: 1; display: grid; grid-template-columns: repeat(31, 1fr); gap: 1.5px; }
+.ym .days > span { aspect-ratio: 4 / 5; position: relative; background: #161412; }
+.ym .days > .later { background: none; box-shadow: inset 0 0 0 1px #1c1a18; }
+.ym .days > .on { background: var(--print-paper); }
+.ym .print-art { position: absolute; inset: 8%; width: 84%; height: 84%; }
+.ym path { vector-effect: non-scaling-stroke; stroke-width: 1.2px; }
+.year-grid.paper .ym > b { color: var(--print-ink-soft); }
+.year-grid.paper .days > span { background: none; box-shadow: none; }
+.year-grid.paper .days > .on .print-art { inset: 0; width: 100%; height: 100%; }
 /* Your year: every print drawn on one white sheet */
 .st-white .st-page { gap: 12px; }
 .st-rule { display: block; height: 3px; background: currentColor; }
@@ -369,9 +378,6 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .st-sheet-head small { font-size: 11px; line-height: 13px; color: #6f6a64; }
 .st-sheet .inks, .st-edition .inks { gap: 3px; }
 .st-sheet .inks i, .st-edition .inks i { width: 9px; height: 9px; }
-.year-grid.paper { gap: 2px 3px; }
-.year-grid.paper > span { background: none; border: 0; }
-.year-grid.paper > .on .print-art { inset: 0; width: 100%; height: 100%; }
 /* Your line */
 .st-route { width: min(300px, 100%); aspect-ratio: 1; display: block; margin: 37px auto 0; overflow: visible; }
 .st-route path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: plot 1.4s cubic-bezier(.45, .05, .35, 1) .2s forwards; }
@@ -437,7 +443,6 @@ button.card:active { transform: scale(0.985); opacity: 0.9; }
 .credit { font-size: 12px; line-height: 16px; color: #8a847b; padding: 8px var(--gutter) 40px; }
 .desk-note .credit { padding: 12px 0 0; font-size: 12px; line-height: 16px; color: #8a847b; }
 /* small year prints: keep routes about 1.5px wide whatever the cell size (matches Figma) */
-.year-grid.small path { vector-effect: non-scaling-stroke; stroke-width: 1.5px; }
 
 /* Intro (Figma 83:1333 – 75:1332) */
 .intro { position: fixed; inset: 0; z-index: 50; background: var(--ui-screen); color: var(--ui-white); display: flex; flex-direction: column; padding: calc(8px + env(safe-area-inset-top)) 0 calc(20px + env(safe-area-inset-bottom)); cursor: pointer; transition: transform .7s cubic-bezier(.6, 0, .8, .4); max-width: 430px; margin: 0 auto; }

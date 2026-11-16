@@ -59,15 +59,6 @@ export function backupDot(now: Date, rides: Ride[], settings: Settings) {
   return !settings.backupNudged || (now.getTime() - dateOf(settings.backupNudged).getTime()) / 864e5 >= 14;
 }
 
-// Columns for the year-so-far grid: the fewest (biggest prints) that fit.
-export function yearCols(cells: number, width = 345, height = 470, gap = 4) {
-  for (let c = 3; c <= 24; c++) {
-    const w = (width - (c - 1) * gap) / c;
-    if (Math.ceil(cells / c) * (w * 132 / 108 + gap) <= height) return c;
-  }
-  return 24;
-}
-
 export function weekRange(start: string) {
   const s = dateOf(start), e = dateOf(addDays(start, 6));
   return s.getMonth() === e.getMonth() ? `${MON[s.getMonth()]} ${s.getDate()} – ${e.getDate()}` : `${MON[s.getMonth()]} ${s.getDate()} – ${MON[e.getMonth()]} ${e.getDate()}`;

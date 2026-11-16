@@ -74,7 +74,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
     inRange = rides.filter(r => r.day.startsWith(String(yr)));
     prevOk = `${yr}-01-01` > first; nextOk = yr < t.getFullYear();
     step = n => setYr(yr + n);
-    body = <YearGrid rides={rides} y={yr} today={today} onOpen={open} />;
+    body = <YearGrid rides={rides} y={yr} today={today} onMonth={m => { setMo({ y: yr, m }); setView("month"); }} />;
   } else {
     const days = new Date(mo.y, mo.m + 1, 0).getDate();
     const lead = (new Date(mo.y, mo.m, 1).getDay() + 6) % 7;
