@@ -303,20 +303,21 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .tab .account { padding-top: 16px; padding-bottom: 24px; }
 .account .frow .txt { flex: 1; }
 .account { gap: 0; }
-.account section + section { margin-top: 30px; }
+.account section + section { margin-top: 36px; }
 .acct-h { font-size: 12px; line-height: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ui-text-soft); padding-bottom: 8px; border-bottom: 2px solid var(--ui-white); }
-.account .frow { gap: 14px; padding: 12px 0; }
+.account .frow { gap: 16px; padding: 16px 0; min-height: 72px; align-items: center; }
+.account .frow .txt { gap: 4px; }
+.account .frow .txt span { line-height: 17px; }
 .account .ic { color: var(--ui-text-soft); flex: none; line-height: 0; align-self: flex-start; padding-top: 1px; }
 .account .danger { color: var(--status-error); }
 .account .go { color: var(--ui-text-soft); line-height: 0; flex: none; }
-.account .marks { display: flex; gap: 6px; flex: none; }
-.account .frow.recaps { border-bottom: 0; padding-bottom: 4px; }
-.recap-chips { display: flex; gap: 8px; padding: 0 0 14px 36px; border-bottom: 1px solid var(--ui-line); }
-.chip { position: relative; flex: none; font-size: 14px; line-height: 18px; font-weight: 700; color: var(--ui-white); border: 1px solid #6f6a64; border-radius: 999px; padding: 7px 14px; white-space: nowrap; cursor: pointer; }
-.chip.due { border-color: var(--ui-white); }
-.chip[aria-pressed="false"] { color: var(--ui-text-soft); }
-.chip[aria-pressed="true"] { background: var(--ui-white); border-color: var(--ui-white); color: var(--brand-black); }
-.chip.file input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.account .act { flex: none; font-size: 15px; line-height: 20px; font-weight: 700; color: var(--ui-white); }
+.account .frow.file { position: relative; cursor: pointer; }
+.account .frow.file input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+/* Recap switches sit under their row, lined up with its text */
+.account .frow.head { border-bottom: 0; padding-bottom: 6px; min-height: 0; }
+.account .frow.sub { margin-left: 38px; width: auto; padding: 12px 0; min-height: 60px; }
+.account .frow.sub .txt b { font-size: 16px; line-height: 21px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .year-link { font-size: 17px; line-height: 22px; font-weight: 700; color: var(--ui-white); padding: 10px 0; text-align: center; }
 /* 2026, Drawn. story (Figma section 05). Each page sets its own background and ink. */
