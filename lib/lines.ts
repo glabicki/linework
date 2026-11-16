@@ -32,6 +32,9 @@ export const paperInk = (l: Line) => PAPER[COLOR[l]] ?? COLOR[l];
 // Text on a line's color: dark on the light lines, white on the rest.
 const DARK_TEXT = new Set(["#F5BF2E", "#79BF4E", "#9A9893", "#F07A35"]);
 export const textOn = (l: Line) => (DARK_TEXT.has(COLOR[l]) ? "#1c1a18" : "#ffffff");
+// A line's color as a whole page behind small white text: the few that fall short of 4.5:1 go a shade deeper.
+const DEEP: Record<string, string> = { "#E04A3C": "#D14538", "#219653": "#1E874B", "#A36F3F": "#9E6C3D", "#7A7772": "#797671", "#5A86B8": "#5179A7" };
+export const pageColor = (l: Line) => DEEP[COLOR[l]] ?? COLOR[l];
 
 export const LABEL: Record<Line, string> = { GS: "42 St", FS: "Franklin", H: "Rockaway", SI: "SIR" };
 export const NAME: Record<Line, string> = { GS: "42 St Shuttle", FS: "Franklin Av Shuttle", H: "Rockaway Park Shuttle", SI: "Staten Island Railway" };

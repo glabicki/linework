@@ -50,7 +50,7 @@ describe("year grid", () => {
     expect(yearCols(7)).toBe(3);
     expect(yearCols(46)).toBe(7);
     expect(yearCols(365)).toBeGreaterThanOrEqual(15);
-    expect(yearCols(366)).toBeLessThanOrEqual(18);
+    expect(yearCols(366)).toBeLessThanOrEqual(20);
   });
 });
 

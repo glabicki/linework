@@ -83,7 +83,7 @@ export default function Onboarding({ settings }: { settings: Settings }) {
       <Nav step={2} onBack={() => setStep(1)} onSkip={() => finish()} />
       <div className="page-copy">
         <h1 className="t-large">How long were you underground?</h1>
-        <p>Linework adds up your rides into a short recap. It waits for you at the top of Today. Pick how often.</p>
+        <p>Linework adds up your rides into a short recap. It waits for you on Today, under your print. Pick how often.</p>
       </div>
       <div className="ob-preview" aria-hidden="true">
         <div className="recap-card">

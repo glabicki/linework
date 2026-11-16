@@ -23,7 +23,7 @@ type Tab = "today" | "prints" | "recaps" | "account";
 type Page =
   | { kind: "ride"; day: string; rideId?: string; line?: Line }
   | { kind: "day"; day: string }
-  | { kind: "make"; day: string }
+  | { kind: "make"; day: string; year?: number }
   | { kind: "add"; day: string }
   | { kind: "year"; year?: number }
   | { kind: "story"; year: number }
@@ -86,10 +86,10 @@ export default function App() {
   let view;
   if (page?.kind === "ride") view = <RideSheet key={page.rideId ?? page.line} day={page.day} rides={rides} ride={rides.find(r => r.id === page.rideId)} line={page.line} nav={nav} onRemoved={onRemoved} />;
   else if (page?.kind === "day") view = <DayPage day={page.day} today={today} rides={rides} nav={nav} onRemoved={onRemoved} />;
-  else if (page?.kind === "make") view = <MakePrint day={page.day} rides={rides} nav={nav} toast={toast} />;
+  else if (page?.kind === "make") view = <MakePrint day={page.day} year={page.year} rides={rides} nav={nav} toast={toast} />;
   else if (page?.kind === "add") view = <AddRide day={page.day} rides={rides} nav={nav} />;
   else if (page?.kind === "year") view = <YearSoFar rides={rides} today={today} year={page.year} nav={nav} toast={toast} />;
-  else if (page?.kind === "story") view = <YearStory key={page.year} rides={rides} today={today} year={page.year} nav={nav} />;
+  else if (page?.kind === "story") view = <YearStory key={page.year} rides={rides} today={today} year={page.year} nav={nav} toast={toast} />;
   else if (page?.kind === "home") view = <HomeScreen nav={nav} />;
   else if (tab === "prints") view = <Prints key={at ?? "now"} at={at} rides={rides} today={today} nav={nav} />;
   else if (tab === "recaps") view = <Recaps rides={rides} today={today} nav={nav} />;

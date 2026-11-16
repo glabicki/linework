@@ -6,14 +6,16 @@ import { dayShort, plural } from "@/lib/dates";
 import type { Ride } from "@/lib/rides";
 
 // The drawing for one day: routes in paper inks on white. No chrome, no mark.
-export const DayPrint = memo(function DayPrint({ day, lines, base = 300, fresh }: { day: string; lines: Line[]; base?: number; fresh?: Line }) {
+// `flat` is the year print (Figma "every line once, same weight"): inks at 90% instead of multiplied,
+// so a dozen lines sharing track don't pile up into black.
+export const DayPrint = memo(function DayPrint({ day, lines, base = 300, fresh, flat }: { day: string; lines: Line[]; base?: number; fresh?: Line; flat?: boolean }) {
   const f = frameFor(lines);
   const sw = strokeWidth(f.w, base);
   return (
     <svg className="print-art" viewBox={`${f.x.toFixed(0)} ${f.y.toFixed(0)} ${f.w.toFixed(0)} ${f.h.toFixed(0)}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       {strokesFor(day, lines).map(s => (
         <path key={s.line} d={s.d} className={s.line === fresh ? "draw" : undefined} pathLength={s.line === fresh ? 1 : undefined} transform={`translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})`} fill="none" stroke={s.color}
-          strokeWidth={sw.toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={{ mixBlendMode: "multiply" }} />
+          strokeWidth={sw.toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={flat ? { opacity: 0.9 } : { mixBlendMode: "multiply" }} />
       ))}
     </svg>
   );

@@ -8,19 +8,21 @@ export type Paper = keyof typeof PAPERS;
 const FONT = "'Helvetica Neue', Helvetica, Arimo, Arial, sans-serif", INK = "#2A2724", SOFT = "#6F6A64";
 
 // The file itself: the drawing, its inks and its date. No app chrome, no logo.
-export function posterSvg(o: { day: string; lines: Line[]; rides: number; size: [number, number]; paper: Paper; caption: boolean }) {
+// `day` seeds the wobble; a year poster passes its year there and as the title.
+export function posterSvg(o: { day: string; lines: Line[]; rides: number; size: [number, number]; paper: Paper; caption: boolean; title?: string; flat?: boolean }) {
   const [iw, ih] = o.size, W = 1000, H = Math.round((W * ih) / iw), m = 72, bg = PAPERS[o.paper];
   const cap = o.caption ? 150 : 0;
   const f = frameFor(o.lines), sw = strokeWidth(f.w, 300);
   const art = strokesFor(o.day, o.lines).map(s =>
-    `<path d="${s.d}" transform="translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})" fill="none" stroke="${s.color}" stroke-width="${sw.toFixed(0)}" stroke-linecap="round" stroke-linejoin="round" style="mix-blend-mode:multiply"/>`).join("");
+    `<path d="${s.d}" transform="translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})" fill="none" stroke="${s.color}" stroke-width="${sw.toFixed(0)}" stroke-linecap="round" stroke-linejoin="round" ${o.flat ? 'opacity="0.9"' : 'style="mix-blend-mode:multiply"'}/>`).join("");
   let body = `<svg x="${m}" y="${m}" width="${W - 2 * m}" height="${H - 2 * m - cap}" viewBox="${f.x.toFixed(0)} ${f.y.toFixed(0)} ${f.w.toFixed(0)} ${f.h.toFixed(0)}" preserveAspectRatio="xMidYMid meet" overflow="visible">${art}</svg>`;
   if (o.caption) {
-    const d = dateOf(o.day), y = H - m - cap + 44;
+    const y = H - m - cap + 44, d = o.title ? null : dateOf(o.day);
+    const title = d ? `${DOWL[d.getDay()]}, ${MONL[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}` : o.title;
     const inks = [...new Set(o.lines.map(paperInk))], r = 11, step = r * 2.7;
     const x0 = W - m - (inks.length * step - r * 0.7);
     body += `<rect x="${m}" y="${y}" width="${W - 2 * m}" height="3.5" fill="${INK}"/>`;
-    body += `<text x="${m}" y="${y + 62}" font-family="${FONT}" font-weight="700" font-size="34" fill="${INK}">${DOWL[d.getDay()]}, ${MONL[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</text>`;
+    body += `<text x="${m}" y="${y + 62}" font-family="${FONT}" font-weight="700" font-size="34" fill="${INK}">${title}</text>`;
     body += `<text x="${m}" y="${y + 100}" font-family="${FONT}" font-size="25" fill="${SOFT}">${plural(o.lines.length ? new Set(o.lines).size : 0, "line")} · ${plural(o.rides, "ride")}</text>`;
     body += inks.map((c, i) => `<circle cx="${(x0 + r + i * step).toFixed(1)}" cy="${y + 52}" r="${r}" fill="${c}"/>`).join("");
   }
@@ -36,6 +38,20 @@ export async function posterPng(svg: string, size: [number, number]) {
   const c = document.createElement("canvas"); c.width = px; c.height = py;
   c.getContext("2d")!.drawImage(img, 0, 0, px, py);
   return new Promise<Blob>((res, rej) => c.toBlob(b => (b ? res(b) : rej(new Error("png"))), "image/png"));
+}
+
+// Save a PNG: the share sheet on a phone (Save Image puts it in Photos), a download elsewhere.
+export async function savePoster(svg: string, size: [number, number], name: string, toast: (m: string) => void) {
+  try {
+    const blob = await posterPng(svg, size);
+    const file = new File([blob], name, { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast("Saved");
+  } catch (e) {
+    if ((e as Error).name !== "AbortError") toast("Couldn’t save. Try again.");
+  }
 }
 
 // A 9:16 image for Instagram Stories: the print as a white card on black, the date under it.

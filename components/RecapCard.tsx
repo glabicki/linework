@@ -4,7 +4,7 @@ import type { RecapCard as Card } from "@/lib/recaps";
 import { Icon } from "./icons";
 import type { Nav } from "./App";
 
-// A recap waiting at the top of Today. × puts it away for good.
+// A recap waiting on Today, under the print. × puts it away for good.
 export default function RecapCard({ card, nav }: { card: Card; nav: Nav }) {
   const act = () => {
     markSeen(card.id);

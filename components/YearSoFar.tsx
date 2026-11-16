@@ -6,7 +6,8 @@ import { setSettings, useStore, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
 
 // Every day of a year from the first ride on, a print where you rode. Used here and in Prints · Year.
-export function YearGrid({ rides, y, today, onOpen }: { rides: Ride[]; y: number; today: string; onOpen?: (day: string) => void }) {
+// `paper` draws the prints straight onto a white sheet, with no cells.
+export function YearGrid({ rides, y, today, onOpen, paper, height }: { rides: Ride[]; y: number; today: string; onOpen?: (day: string) => void; paper?: boolean; height?: number }) {
   const done = `${y}-12-31` < today;
   const t = dateOf(done ? `${y}-12-31` : today);
   const year = rides.filter(r => r.day.startsWith(String(y)));
@@ -16,9 +17,9 @@ export function YearGrid({ rides, y, today, onOpen }: { rides: Ride[]; y: number
   const start = weekStart(first) < `${y}-01-01` ? `${y}-01-01` : weekStart(first);
   const cells = Math.round((t.getTime() - dateOf(start).getTime()) / 864e5) + 1;
   // Fewest columns (biggest prints) that still fit the screen; a week per row while it can.
-  const cols = yearCols(cells);
+  const cols = yearCols(cells, 345, height, paper ? 3 : 4);
   return (
-    <div className={`year-grid${cols >= 8 ? " small" : ""}`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="img" aria-label={`${plural(byDay.size, "day")} with rides out of ${plural(cells, "day")}`}>
+    <div className={`year-grid${cols >= 8 ? " small" : ""}${paper ? " paper" : ""}`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }} role="img" aria-label={`${plural(byDay.size, "day")} with rides out of ${plural(cells, "day")}`}>
       {[...Array(cells)].map((_, i) => {
         const k = addDays(start, i);
         const list = byDay.get(k);

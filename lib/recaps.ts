@@ -1,7 +1,7 @@
 import { MON, MONL, addDays, dateOf, fmtH, keyOf, plural, weekStart } from "./dates";
 import { linesOf, minutes, type Ride, type Settings } from "./rides";
 
-// Recaps show up as a card at the top of Today; no push notifications.
+// Recaps show up as a card on Today, under the print; no push notifications.
 export type RecapCard = {
   id: string;
   kind: "week" | "month" | "year";
@@ -55,11 +55,11 @@ export function backupDue(now: Date, rides: Ride[], settings: Settings) {
 
 // Columns for the year-so-far grid: the fewest (biggest prints) that fit.
 export function yearCols(cells: number, width = 345, height = 470, gap = 4) {
-  for (let c = 3; c <= 18; c++) {
+  for (let c = 3; c <= 24; c++) {
     const w = (width - (c - 1) * gap) / c;
     if (Math.ceil(cells / c) * (w * 132 / 108 + gap) <= height) return c;
   }
-  return 18;
+  return 24;
 }
 
 export function weekRange(start: string) {
