@@ -36,10 +36,12 @@ export function posterSvg(o: { day: string; legs: Leg[]; rides: number; size: [n
 
 // Where the ink dots go in the caption: beside the date when they fit, otherwise beside the
 // smaller line count, drawn closer together (and smaller if they must) so they never touch the words.
+// On the mini print they always sit with the line count, sized to its letters.
 export function inkRow(n: number, width: number, titleW: number, subW: number, k = 1) {
-  let r = 11 * k, step = r * 2.7;
+  const mini = k > 1;
+  let r = (mini ? 7 : 11) * k, step = r * (mini ? 2.5 : 2.7);
   const gap = 28 * k, span = (st: number, rr: number) => (n - 1) * st + 2 * rr;
-  if (titleW + gap + span(step, r) <= width) return { row: "title" as const, r, step, width: span(step, r) };
+  if (!mini && titleW + gap + span(step, r) <= width) return { row: "title" as const, r, step, width: span(step, r) };
   const room = width - subW - gap;
   if (n > 1) step = Math.min(step, (room - 2 * r) / (n - 1));
   if (step < r * 2.3) { r = Math.max(4 * k, room / (n * 2.3 + 0.3)); step = r * 2.3; }

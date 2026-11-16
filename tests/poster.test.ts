@@ -8,6 +8,9 @@ describe("caption ink dots", () => {
   it("sit beside the date when there are only a few", () => {
     expect(inkRow(3, 856, 25 * 34 * 0.6, sub * 25 * 0.55).row).toBe("title");
   });
+  it("sit with the line count on the mini print, even when there are few", () => {
+    expect(inkRow(3, 856, 25 * 34 * 1.6 * 0.6, sub * 25 * 1.6 * 0.55, 1.6).row).toBe("sub");
+  });
   it("never run into the words, at any size, with every ink", () => {
     for (const [iw] of SIZES) {
       const k = iw < 4 ? 1.6 : 1;
