@@ -16,7 +16,7 @@ const hoursOf = (list: Ride[]) => Math.round(minutes(list) / 60);
 const daysOf = (list: Ride[]) => new Set(list.map(r => r.day)).size;
 
 // Three numbers side by side.
-function Stats({ items }: { items: [string, number][] }) {
+function Stats({ items }: { items: [string, number | string][] }) {
   return (
     <dl className="rc-stats">
       {items.map(([k, v]) => <div key={k}><dd>{v.toLocaleString()}</dd><dt>{k}</dt></div>)}
@@ -53,7 +53,7 @@ function Bands({ y, list }: { y: number; list: Ride[] }) {
       </div>
       {top.length > 0 && (
         <div className="band-keys" aria-hidden="true">
-          {top.map(([l, n]) => <span key={l} style={{ flexGrow: n }}>{n / topN >= 0.07 ? label(l) : ""}</span>)}
+          {top.map(([l, n]) => <span key={l} style={{ flexGrow: n }}>{n / topN >= 0.05 ? label(l) : ""}</span>)}
         </div>
       )}
     </div>
@@ -77,6 +77,7 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
   const t = dateOf(today);
   const y = t.getFullYear();
   const year = rides.filter(r => r.day.startsWith(String(y)));
+  const yearSoFar = year.filter(r => r.day <= today);
   // Through January, last year's story leads the page and the new year starts as a fresh sheet.
   const lastYear = rides.filter(r => r.day.startsWith(String(y - 1)));
   const replay = t.getMonth() === 0 && lastYear.length > 0;
@@ -95,6 +96,7 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
   const perDayH = minutes(last) / 60 / days;
 
   const busiest = perDay.indexOf(maxDay);
+  const now = inMonth(t).filter(r => r.day <= today), nowMin = Math.round(minutes(now));
 
   // Figma 115:1758 Recaps · with 2026, Drawn., 175:3844 Recaps · New user and 175:3986 Recaps · Jan 2 (replay ready)
   return (
@@ -113,6 +115,12 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
               })}
             </div>
             <p>Day {dayN}. A new sheet. Your {y} replay opens next January.</p>
+          </section>
+        )}
+        {!replay && now.length > 0 && (
+          <section className="rc-sec">
+            <h2 className="sec-h">{MONL[t.getMonth()]} so far</h2>
+            <Stats items={[["Underground", nowMin >= 60 ? `${Math.round(nowMin / 60)} h` : `${nowMin} min`], ["Rides", now.length], ["Days riding", daysOf(now)]]} />
           </section>
         )}
         {last.length ? (
@@ -140,11 +148,11 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
             <p>Your first recap arrives {MONL[(t.getMonth() + 1) % 12]} 1: your hours underground, the lines you rode most and your busiest day.</p>
           </section>
         )}
-        {!replay && year.length > 0 && (
+        {!replay && yearSoFar.length > 0 && (
           <section className="rc-sec">
             <h2 className="sec-h">{y} so far</h2>
-            <Stats items={[["Hours", hoursOf(year)], ["Rides", year.length], ["Days riding", daysOf(year)]]} />
-            <Bands y={y} list={year} />
+            <Stats items={[["Underground", `${hoursOf(yearSoFar)} h`], ["Rides", yearSoFar.length], ["Days riding", daysOf(yearSoFar)]]} />
+            <Bands y={y} list={yearSoFar} />
             {/* The poster teaser waits for December, the month before it opens. */}
             {t.getMonth() === 11 && (
               <div className="drawn-row soon">

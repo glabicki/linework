@@ -267,7 +267,8 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .rc-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 14px 0 10px; border-top: 1px solid var(--ui-line); }
 .rc-stats div { padding-top: 10px; display: flex; flex-direction: column; gap: 2px; }
 .rc-stats dd { font-size: 28px; line-height: 32px; font-weight: 700; letter-spacing: -0.01em; color: var(--ui-text); }
-.sec-h + .rc-stats { border-top: 0; margin-top: 4px; }
+.sec-h + .rc-stats { border-top: 0; margin-top: 0; }
+.sec-h + .rc-stats div { padding-top: 0; }
 .rc-stats dt { font-size: 12px; line-height: 16px; color: var(--ui-text-soft); }
 .rc-sec .busiest { font-size: 13px; line-height: 17px; color: var(--ui-text-soft); margin-top: 8px; }
 .rc-sec .sub-h { font-size: 12px; line-height: 16px; font-weight: 700; color: var(--ui-text-soft); margin-top: 18px; }
@@ -280,7 +281,7 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .rc-link { align-self: flex-start; margin-top: 14px; font-size: 17px; line-height: 22px; font-weight: 700; color: var(--ui-white); }
 .drawn-row.soon { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--ui-line); }
 .drawn { display: flex; flex-direction: column; gap: 14px; }
-.bands { display: flex; height: 96px; }
+.bands { display: flex; height: 32px; }
 .bands i { display: block; flex: 1 1 0; min-width: 6px; }
 .band-keys { display: flex; margin-top: 6px; font-size: 13px; line-height: 16px; font-weight: 700; color: var(--ui-text); }
 .band-keys span { flex: 1 1 0; min-width: 6px; }
@@ -297,8 +298,8 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .total { display: flex; align-items: flex-end; gap: 8px; color: var(--ui-text); }
 .total span:last-child { font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.2px; padding-bottom: 5px; }
 .hero-recap .note { font-size: 13px; line-height: 16px; color: var(--ui-text-soft); }
-.bars { display: flex; align-items: flex-end; gap: 3.5px; height: 44px; padding-top: 12px; }
-.bars i { width: 6px; flex: none; border-radius: 1.5px; background: var(--ui-text-soft); display: block; }
+.bars { display: flex; align-items: flex-end; gap: 3px; height: 44px; padding-top: 12px; }
+.bars i { flex: 1 1 0; min-width: 0; border-radius: 1.5px; background: var(--ui-text-soft); display: block; }
 .bars i.zero { background: var(--ui-line); }
 .bars i.top { background: var(--ui-text); }
 .bars-axis { display: flex; justify-content: space-between; font-size: 10px; line-height: 12px; letter-spacing: 0.001em; color: var(--ui-text-soft); }
