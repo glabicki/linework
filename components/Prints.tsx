@@ -91,7 +91,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
           return (
             <div key={k} className="wday">
               {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} flip /> : k > today ? <span className="blank later" data-day={k} /> : <button type="button" className="blank" data-day={k} aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
-              <div className="wlab"><b>{dayShort(k)}</b><span>{k > today ? "" : list.length ? plural(list.length, "ride") : "Off"}</span></div>
+              <div className="wlab"><b>{dayShort(k)}</b><span>{k > today ? "" : list.length ? plural(list.length, "ride") : ""}</span></div>
             </div>
           );
         })}

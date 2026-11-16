@@ -50,7 +50,7 @@ export default function MakePrint({ day, year, rides, nav, toast }: { day: strin
         <div ref={paperRef} className="preview" style={{ aspectRatio: `${size[0]} / ${size[1]}` }} dangerouslySetInnerHTML={{ __html: svg }} />
         <div className="opts">
           <div className="opt"><span>Size</span>
-            <div>{SIZES.map(s => <button key={s.join()} type="button" aria-pressed={s[0] === size[0]} onClick={() => setSize(s)}>{s[0]} × {s[1]}</button>)}</div></div>
+            <div>{SIZES.map(s => <button key={s.join()} type="button" aria-pressed={s[0] === size[0]} onClick={() => setSize(s)}>{s[0]}{"\u2009×\u2009"}{s[1]}</button>)}</div></div>
           <div className="opt"><span>Paper</span>
             <div>{(Object.keys(PAPERS) as Paper[]).map(p => <button key={p} type="button" aria-pressed={p === paper} onClick={() => setPaper(p)}>{p === "white" ? "White" : "Warm"}</button>)}</div></div>
           <div className="opt"><span>Caption</span>
