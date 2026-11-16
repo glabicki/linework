@@ -37,7 +37,7 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
     <div className="sheet">
       <Back onClick={nav.pop} />
       <div className="page-copy">
-        <h1 className="t-large">{monthDay(day)}</h1>
+        <h1 className="t-page">{monthDay(day)}</h1>
         <p>{ready ? `Your ${DOWL[d.getDay()]} is ready. ${summary}` : `${DOWL[d.getDay()]}${isToday ? " · today" : ""} · ${list.length ? summary : "no rides yet"}`}</p>
       </div>
       <div className="page-body">
