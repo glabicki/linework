@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DayCard, LineMark } from "./art";
 import { Back } from "./RideSheet";
 import { Icon } from "./icons";
@@ -45,11 +45,7 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
       <div className="page-body">
         <div className="day-card"><DayCard day={day} rides={list} note={captionFor(day, rides, notes)} /></div>
         {list.length > 0 && (
-          <label className="day-note">
-            <span>Caption</span>
-            <input value={notes[day] ?? ""} onChange={e => setNote(day, e.target.value)} maxLength={NOTE_MAX} placeholder="What was today?" enterKeyHint="done"
-              onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); }} />
-          </label>
+          <Caption day={day} value={notes[day] ?? ""} />
         )}
         <i className="hr" />
         {list.map(r => (
@@ -71,6 +67,34 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
         {list.length > 0 && <button type="button" className="action" onClick={() => nav.push({ kind: "make", day })}>Make a print</button>}
         <button type="button" className={`action${isToday && !list.length ? " bare" : ""}`} onClick={() => nav.push({ kind: "add", day })}>Add a ride</button>
       </footer>
+    </div>
+  );
+}
+
+// The day's caption. It saves as you type; Done puts the keyboard away and "Saved" confirms it.
+function Caption({ day, value }: { day: string; value: string }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const changed = useRef(false);
+  useEffect(() => {
+    if (!saved) return;
+    const t = setTimeout(() => setSaved(false), 2000);
+    return () => clearTimeout(t);
+  }, [saved]);
+  return (
+    <div className="day-note">
+      <div className="dn-top">
+        <label htmlFor="day-note">Caption</label>
+        {editing
+          ? <button type="button" onPointerDown={e => e.preventDefault()} onClick={() => ref.current?.blur()}>Done</button>
+          : <span className="dn-saved" aria-live="polite">{saved ? "Saved" : ""}</span>}
+      </div>
+      <input id="day-note" ref={ref} value={value} maxLength={NOTE_MAX} placeholder="What was today?" enterKeyHint="done" autoComplete="off"
+        onChange={e => { changed.current = true; setNote(day, e.target.value); }}
+        onFocus={() => { setEditing(true); setSaved(false); changed.current = false; }}
+        onBlur={() => { setEditing(false); if (changed.current) setSaved(true); }}
+        onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); }} />
     </div>
   );
 }
