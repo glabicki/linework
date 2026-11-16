@@ -250,7 +250,10 @@ button.blank::after { content: "+"; position: absolute; inset: 0; display: flex;
 .ob .page-copy .ob-tag { color: var(--ui-text); }
 .ob-grid { padding-top: 32px; }
 .ob-preview { padding: 28px var(--gutter) 32px; }
-.ob-preview .recap-card { margin: 0; }
+.ob-note { background: var(--ui-surface); border-radius: 18px; padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+.ob-note .nt-head { display: flex; justify-content: space-between; font-size: 13px; line-height: 18px; color: var(--ui-text-soft); margin-bottom: 2px; }
+.ob-note b { font-size: 17px; line-height: 22px; font-weight: 700; color: var(--ui-white); }
+.ob-note p:last-child { font-size: 15px; line-height: 20px; color: var(--ui-text-soft); }
 .ob-opts { margin: 0 var(--gutter); border-top: 2px solid var(--ui-white); }
 .ob-opt { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--ui-line); }
 .ob-opt .txt { display: flex; flex-direction: column; gap: 2px; }

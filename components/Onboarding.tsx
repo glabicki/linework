@@ -87,11 +87,12 @@ export default function Onboarding({ settings }: { settings: Settings }) {
         <h1 className="t-large">How long were you underground?</h1>
         <p>Linework adds up your rides into a short recap. It waits for you on Today, under your print. Pick how often.</p>
       </div>
+      {/* A sample recap, set apart like a notification so it doesn't read as one of the options below. */}
       <div className="ob-preview" aria-hidden="true">
-        <div className="recap-card">
-          <div className="rc-top"><p className="kicker">Weekly recap</p></div>
-          <h2>6 h 40 min underground</h2>
-          <p className="rc-body">Nov 9 – 15 · 18 rides on 4 lines</p>
+        <div className="ob-note">
+          <p className="nt-head"><span>Weekly recap</span><span>now</span></p>
+          <b>6 h 40 min underground</b>
+          <p>Nov 9 – 15 · 18 rides on 4 lines</p>
         </div>
       </div>
       <div className="ob-opts">
