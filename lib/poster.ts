@@ -22,14 +22,28 @@ export function posterSvg(o: { day: string; legs: Leg[]; rides: number; size: [n
   if (o.caption) {
     const y = H - m - cap + 44 * k, d = o.title ? null : dateOf(o.day);
     const title = d ? `${DOWL[d.getDay()]}, ${MONL[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}` : o.title;
-    const inks = [...new Set(lines.map(paperInk))], r = 11 * k, step = r * 2.7;
-    const x0 = W - m - (inks.length * step - r * 0.7);
+    const sub = `${plural(new Set(lines).size, "line")} · ${plural(o.rides, "ride")}`;
+    const inks = [...new Set(lines.map(paperInk))];
+    const dots = inkRow(inks.length, W - 2 * m, title!.length * 34 * k * 0.6, sub.length * 25 * k * 0.55, k);
     body += `<rect x="${m}" y="${y}" width="${W - 2 * m}" height="${3.5 * k}" fill="${INK}"/>`;
     body += `<text x="${m}" y="${y + 62 * k}" font-family="${FONT}" font-weight="700" font-size="${34 * k}" fill="${INK}">${title}</text>`;
-    body += `<text x="${m}" y="${y + 100 * k}" font-family="${FONT}" font-size="${25 * k}" fill="${SOFT}">${plural(new Set(lines).size, "line")} · ${plural(o.rides, "ride")}</text>`;
-    body += inks.map((c, i) => `<circle cx="${(x0 + r + i * step).toFixed(1)}" cy="${y + 52 * k}" r="${r}" fill="${c}"/>`).join("");
+    body += `<text x="${m}" y="${y + 100 * k}" font-family="${FONT}" font-size="${25 * k}" fill="${SOFT}">${sub}</text>`;
+    const cy = y + (dots.row === "title" ? 52 : 91) * k, x0 = W - m - dots.width;
+    body += inks.map((c, i) => `<circle cx="${(x0 + dots.r + i * dots.step).toFixed(1)}" cy="${cy.toFixed(1)}" r="${dots.r.toFixed(1)}" fill="${c}"/>`).join("");
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${bg}"/>${body}</svg>`;
+}
+
+// Where the ink dots go in the caption: beside the date when they fit, otherwise beside the
+// smaller line count, drawn closer together (and smaller if they must) so they never touch the words.
+export function inkRow(n: number, width: number, titleW: number, subW: number, k = 1) {
+  let r = 11 * k, step = r * 2.7;
+  const gap = 28 * k, span = (st: number, rr: number) => (n - 1) * st + 2 * rr;
+  if (titleW + gap + span(step, r) <= width) return { row: "title" as const, r, step, width: span(step, r) };
+  const room = width - subW - gap;
+  if (n > 1) step = Math.min(step, (room - 2 * r) / (n - 1));
+  if (step < r * 2.3) { r = Math.max(4 * k, room / (n * 2.3 + 0.3)); step = r * 2.3; }
+  return { row: "sub" as const, r, step, width: span(step, r) };
 }
 
 // PNG at print resolution, drawn from the SVG: 300 dpi up to 8 × 10 so small prints stay sharp,
