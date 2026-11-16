@@ -401,15 +401,17 @@ button.card:active { transform: scale(0.985); opacity: 0.9; }
 .intro.lift { transform: translateY(-100%); }
 .in-rule { display: block; height: 3px; background: var(--ui-white); transform-origin: left; animation: in-rule .5s cubic-bezier(.2, .7, .2, 1) both; }
 @keyframes in-rule { from { transform: scaleX(0); } }
-.in-line { overflow: hidden; padding: 0 var(--gutter); font-size: 60px; line-height: 54px; font-weight: 700; letter-spacing: -0.01em; }
-.in-line span { display: block; animation: in-rise .6s cubic-bezier(.2, .7, .2, 1) both; }
-@keyframes in-rise { from { transform: translateY(105%); } }
-.in-name { padding-top: 12px; padding-bottom: 11px; }
+/* Each line rises out of its own clipped box. The box reaches 16px below the line so letters
+   like y and p aren't cut off, and the negative margin keeps the lines 54px apart. */
+.in-line { overflow: hidden; padding: 0 var(--gutter) 16px; margin-bottom: -16px; font-size: 60px; line-height: 54px; font-weight: 700; letter-spacing: -0.01em; }
+.in-line span { display: block; animation: in-rise .7s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes in-rise { from { transform: translateY(calc(100% + 30px)); } }
+.in-name { padding-top: 12px; padding-bottom: 27px; margin-bottom: -16px; }
 .in-head { padding-top: 10px; }
-.in-routes { margin-top: auto; padding: 0 var(--gutter) 24px; display: grid; grid-template-columns: repeat(13, 1fr); gap: 10px 5px; }
+/* Every line's route, as big as the screen allows: three rows, or four on a tall screen. */
+.in-routes { margin-top: auto; padding: 0 var(--gutter) 24px; display: grid; grid-template-columns: repeat(9, 1fr); gap: 12px 10px; }
+@media (min-height: 780px) { .in-routes { grid-template-columns: repeat(7, 1fr); gap: 14px 12px; } }
 .in-routes svg { width: 100%; aspect-ratio: 1; display: block; }
-.in-routes path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: plot .7s cubic-bezier(.45, .05, .35, 1) forwards; }
-.in-fine { padding: 12px var(--gutter) 0; font-size: 12.5px; line-height: 18px; color: var(--ui-text-soft); max-width: 330px; animation: in-fade .5s ease 2.3s both; }
-@keyframes in-fade { from { opacity: 0; } }
+.in-routes path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: plot .9s cubic-bezier(.45, .05, .35, 1) forwards; }
 .in-skip { align-self: flex-end; margin: auto var(--gutter) 0 0; padding-top: 12px; font-size: 13px; line-height: 16px; color: var(--ui-text-soft); }
-@media (prefers-reduced-motion: reduce) { .intro, .in-rule, .in-line span, .in-routes path, .in-fine { animation: none; transition: none; } .in-routes path { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .intro, .in-rule, .in-line span, .in-routes path { animation: none; transition: none; } .in-routes path { stroke-dashoffset: 0; } }

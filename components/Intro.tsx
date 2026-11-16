@@ -5,8 +5,9 @@ import { COLOR, ORDER } from "@/lib/lines";
 
 // Figma 83:1333 → 83:1362 → 83:1391 → 75:1332: the headline rises, every route draws,
 // the poster holds, then it's pulled up into the machine and Today is underneath.
-const HOLD = 3600, LIFT = 700;
-const HEAD = [["Every Ride/", 0.35], ["Uptown &", 0.5], ["Downtown/", 0.65], ["Local &", 1.1], ["Express/", 1.25], ["Drawn.", 1.4]] as const;
+// About 5 s: the headline, then every route plotted, then a beat on the finished poster.
+const HOLD = 5400, LIFT = 700;
+const HEAD = [["Every Ride/", 0.4], ["Uptown &", 0.6], ["Downtown/", 0.8], ["Local &", 1.35], ["Express/", 1.55], ["Drawn.", 1.75]] as const;
 
 export default function Intro({ onDone }: { onDone: () => void }) {
   const [lift, setLift] = useState(false);
@@ -31,13 +32,12 @@ export default function Intro({ onDone }: { onDone: () => void }) {
           const b = markBox(l, 1.24);
           return (
             <svg key={l} viewBox={`${b.x.toFixed(0)} ${b.y.toFixed(0)} ${b.s.toFixed(0)} ${b.s.toFixed(0)}`}>
-              <path d={handPath(l, l + "dot")} pathLength={1} fill="none" stroke={COLOR[l]} strokeWidth={(b.s * 0.1).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={{ animationDelay: `${1.2 + i * 0.045}s` }} />
+              <path d={handPath(l, l + "dot")} pathLength={1} fill="none" stroke={COLOR[l]} strokeWidth={(b.s * 0.1).toFixed(0)} strokeLinecap="round" strokeLinejoin="round" style={{ animationDelay: `${2.1 + i * 0.06}s` }} />
             </svg>
           );
         })}
       </div>
-      <i className="in-rule" style={{ animationDelay: "2.2s" }} />
-      <p className="in-fine">A print of every subway ride you take in New York. Tap the line you rode and the plotter draws it, one ink pass at a time.</p>
+      <i className="in-rule" style={{ animationDelay: "2s" }} />
       <button type="button" className="in-skip" onClick={e => { e.stopPropagation(); setLift(true); }}>Tap to skip</button>
     </div>
   );
