@@ -5,12 +5,13 @@ import { backupJSON, eraseAll, linesOf, markBackedUp, restoreBackup, setSettings
 import { monthDay, plural, todayKey } from "@/lib/dates";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
+import { TabHead } from "./Prints";
 
 function Toggle({ on, onChange, label: l }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
   return <button type="button" role="switch" aria-checked={on} aria-label={l} className={`toggle${on ? " on" : ""}`} onClick={() => onChange(!on)} />;
 }
 
-export default function Account({ rides, settings, nav, toast }: { rides: Ride[]; settings: Settings; nav: Nav; toast: (m: string) => void }) {
+export default function Account({ rides, settings, nav, toast, due }: { rides: Ride[]; settings: Settings; nav: Nav; toast: (m: string) => void; due?: boolean }) {
   const [erase, setErase] = useState(false);
   const lines = settings.lines.length ? settings.lines : linesOf(rides).slice(0, 3);
   const r = settings.recaps;
@@ -51,7 +52,7 @@ export default function Account({ rides, settings, nav, toast }: { rides: Ride[]
           <p>Removes your rides and prints from this iPhone. {plural(rides.length, "ride")} will be gone.</p>
         </div>
         <footer className="sheet-foot" style={{ paddingBottom: 34 }}>
-          <button type="button" className="btn" onClick={() => { eraseAll(); setErase(false); nav.pop(); toast("Erased"); }}>Erase this phone</button>
+          <button type="button" className="btn" onClick={() => { eraseAll(); setErase(false); nav.tab("today"); toast("Erased"); }}>Erase this phone</button>
           <button type="button" className="btn-line" onClick={() => setErase(false)}>Cancel</button>
         </footer>
       </div>
@@ -64,12 +65,13 @@ export default function Account({ rides, settings, nav, toast }: { rides: Ride[]
 
   // Figma 115:1414 Account · Signed out
   return (
-    <div className="sheet">
-      <Back onClick={nav.pop} />
-      <div className="sheet-copy"><h1 className="t-page" style={{ color: "var(--ui-text)" }}>Account</h1></div>
+    <div className="tab">
+      <TabHead title="Account" />
       <div className="sheet-rows account">
         <p className="kicker">Backup</p><i className="hr" />
-        <Row title="Save a backup" sub={settings.backedUp ? `Last saved ${monthDay(settings.backedUp)}. Your rides live only on this phone.` : "Your rides live only on this phone. Save a copy to Files now and then."}>
+        <Row title="Save a backup" sub={due
+          ? `Time for a backup. ${plural(rides.length, "ride")} live only on this phone${settings.backedUp ? `, last saved ${monthDay(settings.backedUp)}` : ""}.`
+          : settings.backedUp ? `Last saved ${monthDay(settings.backedUp)}. Your rides live only on this phone.` : "Your rides live only on this phone. Save a copy to Files now and then."}>
           <button type="button" className="val" onClick={saveBackup}>Save</button>
         </Row>
         <Row title="Restore a backup" sub="Bring rides back from a saved file">

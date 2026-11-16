@@ -37,3 +37,21 @@ export async function posterPng(svg: string, size: [number, number]) {
   c.getContext("2d")!.drawImage(img, 0, 0, px, py);
   return new Promise<Blob>((res, rej) => c.toBlob(b => (b ? res(b) : rej(new Error("png"))), "image/png"));
 }
+
+// A 9:16 image for Instagram Stories: the print as a white card on black, the date under it.
+export const STORY_SIZE: [number, number] = [7.2, 12.8]; // 1080 × 1920 at 150 dpi
+export function storySvg(o: { day: string; lines: Line[]; rides: number; minutes: number }) {
+  const W = 1080, H = 1920, cw = 840, ch = 1050, cx = (W - cw) / 2, cy = 330, m = 64;
+  const f = frameFor(o.lines), sw = strokeWidth(f.w, 300);
+  const art = strokesFor(o.day, o.lines).map(s =>
+    `<path d="${s.d}" transform="translate(${s.dx.toFixed(0)} ${s.dy.toFixed(0)})" fill="none" stroke="${s.color}" stroke-width="${sw.toFixed(0)}" stroke-linecap="round" stroke-linejoin="round" style="mix-blend-mode:multiply"/>`).join("");
+  const d = dateOf(o.day), y = cy + ch + 110;
+  const inks = [...new Set(o.lines.map(paperInk))];
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#000"/>`
+    + `<rect x="${cx}" y="${cy}" width="${cw}" height="${ch}" fill="#fff"/>`
+    + `<svg x="${cx + m}" y="${cy + m}" width="${cw - 2 * m}" height="${ch - 2 * m}" viewBox="${f.x.toFixed(0)} ${f.y.toFixed(0)} ${f.w.toFixed(0)} ${f.h.toFixed(0)}" preserveAspectRatio="xMidYMid meet" overflow="visible">${art}</svg>`
+    + `<text x="${cx}" y="${y}" font-family="${FONT}" font-weight="700" font-size="64" letter-spacing="-1" fill="#fff">${DOWL[d.getDay()]}, ${MONL[d.getMonth()]} ${d.getDate()}</text>`
+    + `<text x="${cx}" y="${y + 62}" font-family="${FONT}" font-size="36" fill="#A39C92">${o.minutes} minutes underground · ${plural(o.rides, "ride")}</text>`
+    + inks.map((c, i) => `<circle cx="${cx + cw - 16 - i * 40}" cy="${y - 22}" r="14" fill="${c}"/>`).join("")
+    + `</svg>`;
+}

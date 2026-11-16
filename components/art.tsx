@@ -37,7 +37,7 @@ export function DayCard({ day, rides, size = "large", onClick }: { day: string; 
       {size === "large" && (
         <span className="cap">
           <b>{dayShort(day)}</b>
-          <span><InkDots lines={lines} />{rides.length ? plural(rides.length, "ride") + (onClick ? " ›" : "") : "No rides yet"}</span>
+          <span><InkDots lines={lines} />{rides.length ? plural(rides.length, "ride") : "No rides yet"}</span>
         </span>
       )}
     </>

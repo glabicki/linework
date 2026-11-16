@@ -1,5 +1,5 @@
 "use client";
-import { COLOR, type Line } from "@/lib/lines";
+import { COLOR, label, type Line } from "@/lib/lines";
 import { MONL, dateOf, keyOf, plural } from "@/lib/dates";
 import { minutes, ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
@@ -14,9 +14,8 @@ function topLines(list: Ride[], n: number) {
 export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: string; nav: Nav }) {
   const t = dateOf(today);
   const year = rides.filter(r => r.day.startsWith(String(t.getFullYear())));
-  const top = topLines(year, 5);
-  const jan1 = new Date(t.getFullYear() + 1, 0, 1);
-  const toGo = Math.ceil((jan1.getTime() - t.getTime()) / 864e5);
+  const top = topLines(year, 6);
+  const topN = top.reduce((a, [, n]) => a + n, 0);
 
   // Last full month
   const lm = new Date(t.getFullYear(), t.getMonth() - 1, 1);
@@ -36,17 +35,6 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
     <div className="tab">
       <TabHead title="Recaps" />
       <div className="recaps-body">
-        <section className="drawn">
-          <div className="bands" aria-hidden="true">
-            {top.length ? top.map(([l]) => <i key={l} style={{ background: COLOR[l] }} />) : [...Array(5)].map((_, i) => <i key={i} className="empty" />)}
-          </div>
-          <i className="hr" />
-          <div className="drawn-row">
-            <div><h2 className="t-card">{t.getFullYear()},<br />Drawn.</h2><p>Opens January 1.{toGo < 120 && top.length ? ` ${plural(toGo, "day")} to go.` : ""}</p></div>
-            <button type="button" onClick={() => nav.push({ kind: "year" })}>See it so far ›</button>
-          </div>
-        </section>
-
         {last.length ? (
           <section className="hero-recap">
             <p className="t-label">{MONL[lm.getMonth()]} · Underground</p>
@@ -68,6 +56,23 @@ export default function Recaps({ rides, today, nav }: { rides: Ride[]; today: st
             <p>Your first recap arrives {MONL[(t.getMonth() + 1) % 12]} 1: your hours underground, the lines you rode most and your busiest day.</p>
           </section>
         )}
+
+        <section className="drawn">
+          {/* Each band's width is how much of the year you rode that line. */}
+          <div className="bands" role="img" aria-label={top.length ? `Lines you rode most this year: ${top.map(([l, n]) => `${label(l)}, ${plural(n, "ride")}`).join("; ")}` : "No rides yet this year"}>
+            {top.length ? top.map(([l, n]) => <i key={l} style={{ background: COLOR[l], flexGrow: n }} />) : [...Array(5)].map((_, i) => <i key={i} className="empty" />)}
+          </div>
+          {top.length > 0 && (
+            <div className="band-keys" aria-hidden="true">
+              {top.map(([l, n]) => <span key={l} style={{ flexGrow: n }}>{n / topN >= 0.07 ? label(l) : ""}</span>)}
+            </div>
+          )}
+          <i className="hr" />
+          <div className="drawn-row">
+            <div><h2 className="t-card">{t.getFullYear()},<br />Drawn.</h2><p>Your year as one poster: every print, your hours and your lines. Opens January 1.</p></div>
+            <button type="button" onClick={() => nav.push({ kind: "year" })}>See it so far ›</button>
+          </div>
+        </section>
       </div>
     </div>
   );

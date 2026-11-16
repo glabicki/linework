@@ -1,8 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
-import { PAPERS, SIZES, posterPng, posterSvg, type Paper } from "@/lib/poster";
+import { PAPERS, SIZES, STORY_SIZE, posterPng, posterSvg, storySvg, type Paper } from "@/lib/poster";
 import { dayLong, keyOf, dateOf } from "@/lib/dates";
-import { ridesOn, type Ride } from "@/lib/rides";
+import { minutes, ridesOn, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
 import { Back } from "./RideSheet";
 
@@ -14,7 +14,7 @@ export default function MakePrint({ day, rides, nav, toast }: { day: string; rid
   const svg = useMemo(() => posterSvg({ day, lines: list.map(r => r.line), rides: list.length, size, paper, caption }), [day, list, size, paper, caption]);
   const name = `linework-${keyOf(dateOf(day))}-${size[0]}x${size[1]}.png`;
 
-  const savePoster = async () => {
+  const save = async (svg: string, size: [number, number], name: string) => {
     try {
       const blob = await posterPng(svg, size);
       const file = new File([blob], name, { type: "image/png" });
@@ -48,7 +48,8 @@ export default function MakePrint({ day, rides, nav, toast }: { day: string; rid
       </div>
       <footer className="sheet-foot">
         <p className="hint">Save it to your photos, then print it at home or at any print shop. {size[0]} × {size[1]} in.</p>
-        <button type="button" className="btn" onClick={savePoster}>Save poster</button>
+        <button type="button" className="btn" onClick={() => save(svg, size, name)}>Save poster</button>
+        <button type="button" className="btn-line" onClick={() => save(storySvg({ day, lines: list.map(r => r.line), rides: list.length, minutes: minutes(list) }), STORY_SIZE, `linework-${keyOf(dateOf(day))}-story.png`)}>Save for Stories</button>
       </footer>
     </div>
   );

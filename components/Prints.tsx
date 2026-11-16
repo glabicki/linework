@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { DayCard } from "./art";
+import { YearGrid } from "./YearSoFar";
 import { Icon } from "./icons";
 import { MON, MONL, addDays, dateOf, dayShort, keyOf, plural, weekStart } from "@/lib/dates";
 import { linesOf, minutes, ridesOn, type Ride } from "@/lib/rides";
@@ -23,7 +24,8 @@ function Stats({ list }: { list: Ride[] }) {
 
 // Figma 30:206 Week, 32:236 Month, 175:3681 No prints yet
 export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today: string; nav: Nav; at?: string }) {
-  const [view, setView] = useState<"week" | "month">("week");
+  const [view, setView] = useState<"week" | "month" | "year">("week");
+  const [yr, setYr] = useState(dateOf(today).getFullYear());
   const [wk, setWk] = useState(at ?? weekStart(today));
   const t = dateOf(today);
   const [mo, setMo] = useState({ y: t.getFullYear(), m: t.getMonth() });
@@ -66,6 +68,13 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
         })}
       </div>
     );
+  } else if (view === "year") {
+    range = String(yr);
+    sub = yr === t.getFullYear() ? "This year" : "";
+    inRange = rides.filter(r => r.day.startsWith(String(yr)));
+    prevOk = `${yr}-01-01` > first; nextOk = yr < t.getFullYear();
+    step = n => setYr(yr + n);
+    body = <YearGrid rides={rides} y={yr} today={today} onOpen={open} />;
   } else {
     const days = new Date(mo.y, mo.m + 1, 0).getDate();
     const lead = (new Date(mo.y, mo.m, 1).getDay() + 6) % 7;
@@ -99,6 +108,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
         <div className="seg" role="tablist">
           <button type="button" role="tab" aria-selected={view === "week"} onClick={() => setView("week")}>Week</button>
           <button type="button" role="tab" aria-selected={view === "month"} onClick={() => setView("month")}>Month</button>
+          <button type="button" role="tab" aria-selected={view === "year"} onClick={() => setView("year")}>Year</button>
         </div>
         <div className="range">
           <button type="button" onClick={() => step(-1)} disabled={!prevOk} aria-label={`Previous ${view}`}><Icon name="left" /></button>

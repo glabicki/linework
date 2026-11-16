@@ -80,3 +80,4 @@ export function markBox(line: Line, pad = 1.2) {
   const s = Math.max(x1 - x0, y1 - y0, 2600) * pad;
   return { x: (x0 + x1) / 2 - s / 2, y: (y0 + y1) / 2 - s / 2, s };
 }
+

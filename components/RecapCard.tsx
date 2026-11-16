@@ -10,10 +10,9 @@ export default function RecapCard({ card, nav }: { card: Card; nav: Nav }) {
     markSeen(card.id);
     if (card.kind === "week") nav.tab("prints", card.start);
     else if (card.kind === "month") nav.tab("recaps");
-    else if (card.kind === "year") nav.push({ kind: "year", year: card.year });
-    else nav.push({ kind: "account" });
+    else nav.push({ kind: "story", year: card.year ?? new Date().getFullYear() - 1 });
   };
-  const verb = { week: "See your prints", month: "See your recaps", year: "See it", backup: "Save a backup" }[card.kind];
+  const verb = { week: "See your prints", month: "See your recaps", year: "Play your year" }[card.kind];
   return (
     <section className="recap-card" aria-label={card.kicker}>
       <div className="rc-top">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dueCards, yearCols } from "@/lib/recaps";
+import { dueCards, yearCols, backupDue } from "@/lib/recaps";
 import type { Ride, Settings } from "@/lib/rides";
 
 const on = { weekly: true, monthly: true, yearly: true };
@@ -38,9 +38,10 @@ describe("monthly and yearly", () => {
 describe("backup nudge", () => {
   const many = Array.from({ length: 10 }, (_, i) => ride(`2026-10-${String(i + 10)}`));
   it("asks after ten rides with no backup in 30 days", () => {
-    expect(dueCards(at("2026-11-20"), many, { ...base, backedUp: undefined }).map(c => c.kind)).toContain("backup");
-    expect(dueCards(at("2026-11-20"), many, { ...base, backedUp: "2026-11-10" }).map(c => c.kind)).not.toContain("backup");
-    expect(dueCards(at("2026-11-20"), many.slice(0, 9), { ...base, backedUp: undefined }).map(c => c.kind)).not.toContain("backup");
+    expect(backupDue(at("2026-11-20"), many, { ...base, backedUp: undefined })).toBe(true);
+    expect(backupDue(at("2026-11-20"), many, { ...base, backedUp: "2026-11-10" })).toBe(false);
+    expect(backupDue(at("2026-11-20"), many.slice(0, 9), { ...base, backedUp: undefined })).toBe(false);
+    expect(dueCards(at("2026-11-20"), many, { ...base, backedUp: undefined }).map(c => c.id).join()).not.toContain("backup");
   });
 });
 
@@ -59,5 +60,27 @@ describe("week ranges", () => {
   it("spans months when it has to", () => {
     expect(weekRange("2026-11-09")).toBe("Nov 9 – 15");
     expect(weekRange("2026-10-26")).toBe("Oct 26 – Nov 1");
+  });
+});
+
+import { currentStreak, longestStreak, yearStory } from "@/lib/recaps";
+
+describe("streaks and the year story", () => {
+  const r = (day: string, line: Ride["line"] = "A", min = 20): Ride => ({ id: day + line + min, day, line, min, est: true, at: 0 });
+  const rides = [r("2026-03-01"), r("2026-03-02"), r("2026-03-03", "L"), r("2026-03-03", "L"), r("2026-11-13"), r("2026-11-14", "L")];
+  it("counts the current streak through yesterday", () => {
+    expect(currentStreak(rides, "2026-11-15")).toBe(2);
+    expect(currentStreak(rides, "2026-11-14")).toBe(2);
+    expect(currentStreak(rides, "2026-11-17")).toBe(0);
+  });
+  it("finds the longest run of days", () => {
+    expect(longestStreak(rides)).toEqual({ n: 3, start: "2026-03-01", end: "2026-03-03" });
+  });
+  it("sums up a year", () => {
+    const s = yearStory(rides, 2026);
+    expect(s.prints).toBe(5);
+    expect(s.lines).toEqual([["A", 3], ["L", 3]]);
+    expect(s.busiest).toEqual({ day: "2026-03-03", n: 2 });
+    expect(s.min).toBe(120);
   });
 });

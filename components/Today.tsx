@@ -4,6 +4,7 @@ import { DayCard, LineMark } from "./art";
 import { ORDER, label, lineName, stationName, type Line } from "@/lib/lines";
 import { DOWL, MONL, dateOf, plural, to12 } from "@/lib/dates";
 import { minutes, ridesOn, type Ride } from "@/lib/rides";
+import { currentStreak } from "@/lib/recaps";
 import type { Nav } from "./App";
 
 // Not opened from the Home Screen, on a phone-sized screen (Figma 178:4413).
@@ -17,6 +18,27 @@ function useInBrowser() {
   return v;
 }
 
+// Counts up to a new total instead of jumping, so a logged ride lands with a little weight.
+function useCountUp(to: number) {
+  const [v, setV] = useState(to);
+  const from = useRef(to);
+  useEffect(() => {
+    const start = from.current;
+    from.current = to;
+    if (start === to || matchMedia("(prefers-reduced-motion: reduce)").matches) { setV(to); return; }
+    const t0 = performance.now();
+    let raf = 0;
+    const step = (t: number) => {
+      const k = Math.min(1, (t - t0) / 700), e = 1 - Math.pow(1 - k, 3);
+      setV(Math.round(start + (to - start) * e));
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return v;
+}
+
 // Figma 74:953 Today · Poster, 89:1403 First day
 export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: Ride[]; day: string; mine: Line[]; nav: Nav; onLog: (l: Line) => void; recap?: React.ReactNode }) {
   const list = ridesOn(rides, day);
@@ -24,6 +46,8 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
   const counts: Record<string, number> = {};
   list.forEach(r => (counts[r.line] = (counts[r.line] ?? 0) + 1));
   const min = minutes(list);
+  const shown = useCountUp(min);
+  const streak = currentStreak(rides, day);
   const order = [...mine, ...ORDER.filter(l => !mine.includes(l))];
   const inBrowser = useInBrowser();
 
@@ -34,7 +58,7 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
     press.current.t = setTimeout(() => { press.current.held = true; navigator.vibrate?.(10); nav.push({ kind: "ride", day, line: l }); }, 450);
   };
   const up = () => clearTimeout(press.current.t);
-  const tap = (l: Line) => { if (press.current.held) { press.current.held = false; return; } onLog(l); };
+  const tap = (l: Line) => { if (press.current.held) { press.current.held = false; return; } navigator.vibrate?.(8); onLog(l); };
 
   return (
     <div className="today">
@@ -43,10 +67,7 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
           <h1 className="t-page">{DOWL[d.getDay()]}</h1>
           <p className="t-date">{MONL[d.getMonth()]} {d.getDate()}</p>
         </div>
-        <button type="button" className="me" onClick={() => nav.push({ kind: "account" })} aria-label="Account"><span>LW</span></button>
       </header>
-
-      {recap}
 
       {inBrowser && (
         <div className="a2hs-note">
@@ -59,9 +80,13 @@ export default function Today({ rides, day, mine, nav, onLog, recap }: { rides: 
       </div>
 
       <div className="minutes" aria-live="polite">
-        <span className="t-minutes">{min}</span>
+        <span className="t-minutes" aria-label={`${min}`}>{shown}</span>
         <span className="t-stat-label">minutes<br />underground</span>
       </div>
+      {streak > 1 && <p className="streak">{streak} days in a row on the train{ridesOn(rides, day).length ? "." : ". Ride today to keep it going."}</p>}
+
+      {/* Recaps wait under the print, never over it. */}
+      {recap}
 
       <section className="picker" aria-label="Log a ride">
         <div className="picker-head">

@@ -4,7 +4,7 @@ import { linesOf, minutes, type Ride, type Settings } from "./rides";
 // Recaps show up as a card at the top of Today; no push notifications.
 export type RecapCard = {
   id: string;
-  kind: "week" | "month" | "year" | "backup";
+  kind: "week" | "month" | "year";
   kicker: string;
   title: string;
   body: string;
@@ -44,13 +44,13 @@ export function dueCards(now: Date, rides: Ride[], settings: Settings): RecapCar
     if (list.length) out.push({ id: `week-${start}`, kind: "week", kicker: "Weekly recap", title: `${fmtH(minutes(list))} underground`, body: `${range} · ${summary(list)}`, start });
   }
 
-  // A nudge to save a backup: once a month, after ten rides, if none in 30 days.
-  const stale = !settings.backedUp || (now.getTime() - dateOf(settings.backedUp).getTime()) / 864e5 > 30;
-  if (rides.length >= 10 && stale) {
-    out.push({ id: `backup-${today.slice(0, 7)}`, kind: "backup", kicker: "Backup", title: "Save a copy of your rides", body: "They live only on this phone. A backup file brings them back if it’s ever cleared." });
-  }
-
   return out.filter(c => !seen.has(c.id));
+}
+
+// Time to save a backup: after ten rides, with none in 30 days. Shown in Account, not over the print.
+export function backupDue(now: Date, rides: Ride[], settings: Settings) {
+  const stale = !settings.backedUp || (now.getTime() - dateOf(settings.backedUp).getTime()) / 864e5 > 30;
+  return rides.length >= 10 && stale;
 }
 
 // Columns for the year-so-far grid: the fewest (biggest prints) that fit.
@@ -65,4 +65,35 @@ export function yearCols(cells: number, width = 345, height = 470, gap = 4) {
 export function weekRange(start: string) {
   const s = dateOf(start), e = dateOf(addDays(start, 6));
   return s.getMonth() === e.getMonth() ? `${MON[s.getMonth()]} ${s.getDate()} – ${e.getDate()}` : `${MON[s.getMonth()]} ${s.getDate()} – ${MON[e.getMonth()]} ${e.getDate()}`;
+}
+
+// Days in a row with at least one ride. Current counts back from today, or from yesterday
+// while today has none yet, so a streak doesn't vanish at breakfast.
+export function currentStreak(rides: Ride[], today: string) {
+  const days = new Set(rides.map(r => r.day));
+  let d = days.has(today) ? today : addDays(today, -1), n = 0;
+  while (days.has(d)) { n++; d = addDays(d, -1); }
+  return n;
+}
+export function longestStreak(rides: Ride[]) {
+  const days = [...new Set(rides.map(r => r.day))].sort();
+  let best = { n: 0, start: "", end: "" }, run = 0, start = "";
+  days.forEach((d, i) => {
+    run = i && addDays(days[i - 1], 1) === d ? run + 1 : 1;
+    if (run === 1) start = d;
+    if (run > best.n) best = { n: run, start, end: d };
+  });
+  return best;
+}
+
+// Everything the 2026, Drawn. story shows.
+export function yearStory(rides: Ride[], y: number) {
+  const list = rides.filter(r => r.day.startsWith(String(y)));
+  const byLine = new Map<Ride["line"], number>();
+  const byDay = new Map<string, number>();
+  list.forEach(r => { byLine.set(r.line, (byLine.get(r.line) ?? 0) + 1); byDay.set(r.day, (byDay.get(r.day) ?? 0) + 1); });
+  const lines = [...byLine.entries()].sort((a, b) => b[1] - a[1]);
+  let busiest = { day: "", n: 0 };
+  for (const [day, n] of byDay) if (n > busiest.n || (n === busiest.n && day < busiest.day)) busiest = { day, n };
+  return { rides: list, min: minutes(list), prints: byDay.size, lines, busiest, streak: longestStreak(list) };
 }
