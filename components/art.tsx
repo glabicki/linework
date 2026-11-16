@@ -42,13 +42,13 @@ export function DayCard({ day, rides, size = "large", onClick, flip, note }: { d
         <span className="cap">
           <b>{dayShort(day)}</b>
           <span><InkDots lines={lines} />{rides.length ? plural(rides.length, "ride") : "No rides yet"}</span>
-          {note && rides.length > 0 && <span className="note">{note}</span>}
+          {note && <span className="note">{note}</span>}
         </span>
       )}
     </>
   );
   const cls = `card card-${size}`;
-  const aria = `${dayShort(day)}, ${rides.length ? plural(rides.length, "ride") : "no rides"}${note && rides.length ? `. ${note}` : ""}`;
+  const aria = `${dayShort(day)}, ${rides.length ? plural(rides.length, "ride") : "no rides"}${note ? `. ${note}` : ""}`;
   const tag = flip ? { "data-day": day } : {};
   return onClick ? <button type="button" className={cls} onClick={onClick} aria-label={aria} {...tag}>{body}</button> : <div className={cls} role="img" aria-label={aria} {...tag}>{body}</div>;
 }

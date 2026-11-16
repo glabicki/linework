@@ -13,6 +13,8 @@ import type { Nav } from "./App";
 export default function DayPage({ day, today, rides, nav, onRemoved }: { day: string; today: string; rides: Ride[]; nav: Nav; onRemoved: (r: Ride) => void }) {
   const list = ridesOn(rides, day);
   const { notes } = useStore();
+  // Once the caption field is on screen it stays for this visit, so clearing the caption doesn't pull the field away.
+  const [hadNote] = useState(() => !!notes[day]);
   const m = minutes(list);
   const d = dateOf(day);
   const est = list.some(r => r.est);
@@ -44,7 +46,8 @@ export default function DayPage({ day, today, rides, nav, onRemoved }: { day: st
       </div>
       <div className="page-body">
         <div className="day-card"><DayCard day={day} rides={list} note={captionFor(day, rides, notes)} /></div>
-        {list.length > 0 && (
+        {/* A caption stays when its rides are removed; only clearing it deletes it. */}
+        {(list.length > 0 || hadNote || !!notes[day]) && (
           <Caption day={day} value={notes[day] ?? ""} />
         )}
         <i className="hr" />

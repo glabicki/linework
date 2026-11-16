@@ -4,7 +4,7 @@ import { DayCard } from "./art";
 import { YearGrid } from "./YearSoFar";
 import { Icon } from "./icons";
 import { MON, MONL, addDays, dateOf, dayShort, keyOf, plural, weekStart } from "@/lib/dates";
-import { linesOf, minutes, ridesOn, type Ride } from "@/lib/rides";
+import { linesOf, minutes, ridesOn, useStore, type Ride } from "@/lib/rides";
 import type { Nav } from "./App";
 
 export function TabHead({ title, children }: { title: string; children?: React.ReactNode }) {
@@ -22,6 +22,9 @@ function Stats({ list }: { list: Ride[] }) {
   );
 }
 
+// How far back the Prints tab goes: any week, month or year since 2000, rides or not, so old days can be filled in.
+const FLOOR = "2000-01-01";
+
 // Figma 30:206 Week, 32:236 Month, 175:3681 No prints yet
 export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today: string; nav: Nav; at?: string }) {
   const [view, setView] = useState<"week" | "month" | "year">("week");
@@ -29,8 +32,8 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
   const [wk, setWk] = useState(at ?? weekStart(today));
   const t = dateOf(today);
   const [mo, setMo] = useState({ y: t.getFullYear(), m: t.getMonth() });
-  const first = rides.length ? rides.reduce((a, r) => (r.day < a ? r.day : a), today) : today;
   const open = (day: string) => nav.push({ kind: "day", day });
+  const { notes } = useStore();
 
   // Switching Week, Month and Year: each day's print glides from where it was to where it lands,
   // so the views read as one sheet zooming out and in. Days new to the view fade in.
@@ -75,22 +78,22 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
     );
   }
 
-  let body, range, sub, inRange: Ride[], prevOk: boolean, nextOk: boolean, step: (n: number) => void;
+  let body, range, sub, start: string, inRange: Ride[], prevOk: boolean, nextOk: boolean, step: (n: number) => void;
   if (view === "week") {
     const keys = [...Array(7)].map((_, i) => addDays(wk, i));
     const a = dateOf(keys[0]), b = dateOf(keys[6]);
-    range = `${MON[a.getMonth()]} ${a.getDate()} – ${a.getMonth() === b.getMonth() ? "" : MON[b.getMonth()] + " "}${b.getDate()}`;
+    range = `${MON[a.getMonth()]} ${a.getDate()} – ${a.getMonth() === b.getMonth() ? "" : MON[b.getMonth()] + " "}${b.getDate()}${b.getFullYear() === t.getFullYear() ? "" : `, ${b.getFullYear()}`}`;
     sub = wk === weekStart(today) ? "This week" : wk === addDays(weekStart(today), -7) ? "Last week" : "";
     inRange = rides.filter(r => r.day >= keys[0] && r.day <= keys[6]);
-    prevOk = keys[0] > first; nextOk = keys[6] < today;
-    step = n => setWk(addDays(wk, 7 * n));
+    start = keys[0]; prevOk = keys[0] > FLOOR; nextOk = keys[6] < today;
+    step = n => setWk(w => addDays(w, 7 * n));
     body = (
       <div className="week">
         {keys.map(k => {
           const list = ridesOn(rides, k);
           return (
             <div key={k} className="wday">
-              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} flip /> : k > today ? <span className="blank later" data-day={k} /> : <button type="button" className="blank" data-day={k} aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
+              {list.length || notes[k] ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} flip /> : k > today ? <span className="blank later" data-day={k} /> : <button type="button" className="blank" data-day={k} aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
               <div className="wlab"><b>{dayShort(k)}</b><span>{k > today ? "" : list.length ? plural(list.length, "ride") : ""}</span></div>
             </div>
           );
@@ -101,8 +104,8 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
     range = String(yr);
     sub = yr === t.getFullYear() ? "This year" : "";
     inRange = rides.filter(r => r.day.startsWith(String(yr)));
-    prevOk = `${yr}-01-01` > first; nextOk = yr < t.getFullYear();
-    step = n => setYr(yr + n);
+    start = `${yr}-01-01`; prevOk = start > FLOOR; nextOk = yr < t.getFullYear();
+    step = n => setYr(y => y + n);
     body = <YearGrid rides={rides} y={yr} today={today} onMonth={m => { setMo({ y: yr, m }); go("month"); }} />;
   } else {
     const days = new Date(mo.y, mo.m + 1, 0).getDate();
@@ -111,7 +114,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
     range = `${MONL[mo.m]} ${mo.y}`;
     sub = mo.y === t.getFullYear() && mo.m === t.getMonth() ? "This month" : mo.y === t.getFullYear() && mo.m === t.getMonth() - 1 ? "Last month" : "";
     inRange = rides.filter(r => r.day >= keys[0] && r.day <= keys[keys.length - 1]);
-    prevOk = keys[0] > first; nextOk = keys[keys.length - 1] < today;
+    start = keys[0]; prevOk = keys[0] > FLOOR; nextOk = keys[keys.length - 1] < today;
     step = n => setMo(({ y, m }) => { const d = new Date(y, m + n, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
     body = (
       <div className="month">
@@ -121,7 +124,7 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
           const list = ridesOn(rides, k);
           return (
             <div key={k} className="mday">
-              {list.length ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} flip /> : k > today ? <span className="blank later" data-day={k} /> : <button type="button" className="blank" data-day={k} aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
+              {list.length || notes[k] ? <DayCard day={k} rides={list} size="plain" onClick={() => open(k)} flip /> : k > today ? <span className="blank later" data-day={k} /> : <button type="button" className="blank" data-day={k} aria-label={`Add rides for ${dayShort(k)}`} onClick={() => nav.push({ kind: "add", day: k })} />}
               <span>{dateOf(k).getDate()}</span>
             </div>
           );
@@ -141,7 +144,16 @@ export default function Prints({ rides, today, nav, at }: { rides: Ride[]; today
         </div>
         <div className="range">
           <button type="button" onClick={() => step(-1)} disabled={!prevOk} aria-label={`Previous ${view}`}><Icon name="left" /></button>
-          <div><b>{range}</b>{sub && <span>{sub}</span>}</div>
+          <div>
+            {/* Tapping the range opens a date picker, to jump straight to any week, month or year. */}
+            <label className="range-pick">
+              <b>{range}</b>
+              <input type="date" min={FLOOR} max={today} value={start} aria-label={`Pick a ${view}`}
+                onClick={e => { try { e.currentTarget.showPicker?.(); } catch { /* not allowed here */ } }}
+                onChange={e => { const d = e.target.value; if (!d) return; const x = dateOf(d); if (view === "week") setWk(weekStart(d)); else if (view === "month") setMo({ y: x.getFullYear(), m: x.getMonth() }); else setYr(x.getFullYear()); }} />
+            </label>
+            {sub ? <span>{sub}</span> : <button type="button" className="range-now" onClick={() => { setWk(weekStart(today)); setMo({ y: t.getFullYear(), m: t.getMonth() }); setYr(t.getFullYear()); }}>Back to this {view}</button>}
+          </div>
           <button type="button" onClick={() => step(1)} disabled={!nextOk} aria-label={`Next ${view}`}><Icon name="right" /></button>
         </div>
         <Stats list={inRange} />
